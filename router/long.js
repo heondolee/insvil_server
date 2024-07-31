@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../models");
 
-router.use(express.json());
-
 const { Long } = db;
 
 //모든 long 데이터 조회
