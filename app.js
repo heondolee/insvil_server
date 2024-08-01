@@ -11,8 +11,12 @@ app.get('/', (req, res) => {
 });
 
 const longRouter = require('./router/long.js');
+const loginRouter = require('./router/login.js');
+const homeRouter = require('./router/home.js');
 
 app.use('/long', longRouter);
+app.use('/login', loginRouter);
+app.use('/home', homeRouter);
 
 app.listen(port, () => {
 	console.log('Listening...');
