@@ -115,8 +115,54 @@ router.get("/team", async (req, res) => {
 
 // 이름별 조회 - 팀 눌렀을 때
 router.get("/name", async (req, res) => {
-  // 구현 내용
+  try {
+    const { branch, team } = req.query;
+
+    console.log(`branch: ${branch}, team: ${team}`); // 지점 및 팀 이름 출력
+
+    if (!branch || !team) {
+      return res.status(400).json({ message: "지점 및 팀 정보가 필요합니다." });
+    }
+
+    const employees = await User.findAll({
+      where: {
+        branch: branch,
+        team: team,
+        manager: {
+          [db.Sequelize.Op.ne]: '' // 이름 빈 문자열이 아닌 경우만 선택
+        },
+      }
+    });
+
+    // 직원 정보를 형식에 맞게 변환합니다.
+    const employeeInfo = employees.map(user => ({
+      manager: user.manager,                             // 이름
+      username: user.username,                           // 아이디
+      birthdateGender: user.birthdateGender,             // 생년월일 / 성별
+      mobilePhone: user.mobilePhone,                     // 핸드폰
+      phone: user.phone,                                 // 전화
+      fax: user.fax,                                     // 팩스
+      carSettlement: user.carSettlement,                 // 자동차정산
+      longTermSettlement: user.longTermSettlement,       // 장기정산
+      lifeSettlement: user.lifeSettlement                // 생명정산
+    }));
+
+    // 중복된 결과 제거
+    const seen = new Set();
+    const uniqueEmployeeInfo = employeeInfo.filter(user => {
+      const duplicate = seen.has(user.username);
+      seen.add(user.username);
+      return !duplicate;
+    });
+
+    res.status(200).json(uniqueEmployeeInfo);
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
 });
+
 
 // 업무담당자별 조회 - 기본
 router.get("/manager", async (req, res) => {

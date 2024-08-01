@@ -8,16 +8,21 @@ Content-Type: application/json
   "endDate": "2024-07-31"
 }
 
-# GET 요청: 사용자관리 - 지점별
+# GET 요청: 사용자관리 - 지점별 - 기본
 ###
 GET http://localhost:4000/user/branch
 
-# GET 요청: 사용자관리 - 팀별
+# GET 요청: 사용자관리 - 팀별 - 지점별 클릭시
 ###
-GET http://localhost:4000/user/team?branch=본점영업1부
+GET http://localhost:4000/user/team?branch=지점영업8부
+Content-Type: application/json
+
+# GET 요청: 사용자관리 - 이름별 - 팀별 클릭시
+###
+GET http://localhost:4000/user/name?branch=지점영업8부&team=1팀
 Content-Type: application/json
 
 
-# GET 요청: 사용자관리 - 업무담당자별
+# GET 요청: 사용자관리 - 업무담당자별 - 기본
 ###
 GET http://localhost:4000/user/manager
