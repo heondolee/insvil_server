@@ -12,6 +12,12 @@ Content-Type: application/json
 ###
 GET http://localhost:4000/user/branch
 
+# GET 요청: 사용자관리 - 팀별
+###
+GET http://localhost:4000/user/team?branch=본점영업1부
+Content-Type: application/json
+
+
 # GET 요청: 사용자관리 - 업무담당자별
 ###
 GET http://localhost:4000/user/manager

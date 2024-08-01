@@ -62,8 +62,56 @@ router.get("/branch", async (req, res) => {
 
 // 팀별 조회 - 지점 눌렀을 때
 router.get("/team", async (req, res) => {
-  // 구현 내용
+  try {
+    const { branch } = req.query;
+
+    console.log(branch); // 지점 이름 출력
+
+    if (!branch) {
+      return res.status(400).json({ message: "지점 정보가 필요합니다." });
+    }
+
+    const teams = await User.findAll({
+      where: {
+        branch: branch,
+        team: {
+          [db.Sequelize.Op.ne]: '' // 팀이 빈 문자열이 아닌 경우만 선택
+        },
+        manager: '' // manager이 빈 문자열인 경우만 선택
+      }
+    });
+
+    console.log(teams); // 팀 정보 출력
+
+    // 팀별 정보를 형식에 맞게 변환합니다.
+    const teamInfo = teams.map(user => ({
+      team: user.team,                                 // 팀
+      username: user.username,                         // 아이디
+      birthdateGender: user.birthdateGender,           // 생년월일 / 성별
+      mobilePhone: user.mobilePhone,                   // 핸드폰
+      phone: user.phone,                               // 전화
+      fax: user.fax,                                   // 팩스
+      carSettlement: user.carSettlement,               // 자동차정산
+      longTermSettlement: user.longTermSettlement,     // 장기정산
+      lifeSettlement: user.lifeSettlement              // 생명정산
+    }));
+
+    // 중복된 결과 제거
+    const seen = new Set();
+    const uniqueTeamInfo = teamInfo.filter(user => {
+      const duplicate = seen.has(user.username);
+      seen.add(user.username);
+      return !duplicate;
+    });
+
+    res.status(200).json(uniqueTeamInfo);
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
 });
+
 
 // 이름별 조회 - 팀 눌렀을 때
 router.get("/name", async (req, res) => {
