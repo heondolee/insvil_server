@@ -1,7 +1,3 @@
-# GET 요청: 장기보험
-###
-GET http://localhost:4000/long
-
 # POST 요청: 장기보험 계약일 범위로 조회
 ### 
 POST http://localhost:4000/long/date-range
@@ -11,3 +7,7 @@ Content-Type: application/json
   "startDate": "2024-07-01",
   "endDate": "2024-07-31"
 }
+
+# GET 요청: 사용자관리
+###
+GET http://localhost:4000/user/branch

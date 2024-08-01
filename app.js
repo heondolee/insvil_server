@@ -13,12 +13,13 @@ app.get('/', (req, res) => {
 const longRouter = require('./router/long.js');
 const loginRouter = require('./router/login.js');
 const homeRouter = require('./router/home.js');
+const userRouter = require('./router/user.js');
 
 app.use('/long', longRouter);
 app.use('/login', loginRouter);
 app.use('/home', homeRouter);
+app.use('/user', userRouter);
 
 app.listen(port, () => {
-	console.log('Listening...');
+	console.log(`Listening on port ${port}`);
 });
-
