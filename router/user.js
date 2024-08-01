@@ -71,8 +71,39 @@ router.get("/name", async (req, res) => {
 });
 
 // 업무담당자별 조회 - 기본
-router.get("/manage", async (req, res) => {
-  // 구현 내용
+router.get("/manager", async (req, res) => {
+  try {
+    // 지점이 없는 사용자 데이터를 가져옵니다.
+    const usersWithoutBranch = await User.findAll({
+      where: {
+        branch: ''
+      }
+    });
+
+    // 결과를 필요한 형식으로 변환합니다.
+    const result = usersWithoutBranch.map(user => ({
+      name: user.name,                                 // 이름
+      username: user.username,                         // 아이디
+      birthdateGender: user.birthdateGender,           // 생년월일 / 성별
+      mobilePhone: user.mobilePhone,                   // 핸드폰
+      phone: user.phone,                               // 전화
+      fax: user.fax,                                   // 팩스
+    }));
+
+    // 중복된 결과 제거를 위한 Set 사용
+    const seen = new Set();
+    const uniqueResult = result.filter(user => {
+      const duplicate = seen.has(user.username);
+      seen.add(user.username);
+      return !duplicate;
+    });
+
+    // 결과를 클라이언트에게 응답합니다.
+    res.status(200).json(uniqueResult);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
 });
 
 module.exports = router;
