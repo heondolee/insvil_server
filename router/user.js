@@ -203,17 +203,15 @@ router.get("/manager", async (req, res) => {
 // 이름 눌렀을 때
 router.post("/detail", async (req, res) => {
   try {
-    const { username } = req.body;
+    const { userName } = req.body;
 
-    console.log(username); // 이름 출력
-
-    if (!username) {
-      return res.status(400).json({ username: "아이디가 필요합니다."});
+    if (!userName) {
+      return res.status(400).json({ userName: "아이디가 필요합니다."});
     }
 
     const user = await User.findOne({
       where: {
-        username: username
+        username: userName
       }
     });
 
