@@ -13,8 +13,6 @@ router.get("/branch", async (req, res) => {
     // 지점 정보만 추출하여 중복을 제거합니다.
     const branches = [...new Set(users.map(user => user.branch))].filter(branch => branch !== '');
 
-    console.log(branches); // 지점 이름 출력
-
     // 지점별 팀이 없는 row의 정보를 가져옵니다.
     const branchInfo = await Promise.all(branches.map(async (branch) => {
       const info = await User.findAll({
@@ -65,8 +63,6 @@ router.get("/team", async (req, res) => {
   try {
     const { branch } = req.query;
 
-    console.log(branch); // 지점 이름 출력
-
     if (!branch) {
       return res.status(400).json({ message: "지점 정보가 필요합니다." });
     }
@@ -80,8 +76,6 @@ router.get("/team", async (req, res) => {
         manager: '' // manager이 빈 문자열인 경우만 선택
       }
     });
-
-    console.log(teams); // 팀 정보 출력
 
     // 팀별 정보를 형식에 맞게 변환합니다.
     const teamInfo = teams.map(user => ({
@@ -117,8 +111,6 @@ router.get("/team", async (req, res) => {
 router.get("/name", async (req, res) => {
   try {
     const { branch, team } = req.query;
-
-    console.log(`branch: ${branch}, team: ${team}`); // 지점 및 팀 이름 출력
 
     if (!branch || !team) {
       return res.status(400).json({ message: "지점 및 팀 정보가 필요합니다." });
