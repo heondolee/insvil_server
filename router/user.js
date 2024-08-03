@@ -200,4 +200,45 @@ router.get("/manager", async (req, res) => {
   }
 });
 
+// 이름 눌렀을 때
+router.post("/detail", async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    console.log(username); // 이름 출력
+
+    if (!username) {
+      return res.status(400).json({ username: "아이디가 필요합니다."});
+    }
+
+    const user = await User.findOne({
+      where: {
+        username: username
+      }
+    });
+
+    const result = {
+      username: user.username,                         // 아이디
+      branch: user.branch,                             // 지점
+      team: user.team,                                 // 팀
+      manager: user.manager,                           // 이름
+      birthdateGender: user.birthdateGender,           // 생년월일 / 성별
+      mobilePhone: user.mobilePhone,                   // 핸드폰
+      phone: user.phone,                               // 전화
+      fax: user.fax,                                   // 팩스
+      accountHolder: user.accountHolder,               // 예금주
+      address: user.address,                           // 주소
+      carSettlement: user.carSettlement,               // 자동차정산
+      longTermSettlement: user.longTermSettlement,     // 장기정산
+      lifeSettlement: user.lifeSettlement,             // 생명정산
+      other: user.other                               // 기타
+    };
+
+    res.status(200).send(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
