@@ -216,6 +216,8 @@ router.post("/detail", async (req, res) => {
       mobilePhone: user.mobilePhone,                   // 핸드폰
       phone: user.phone,                               // 전화
       fax: user.fax,                                   // 팩스
+      bank: user.bank,                                 // 은행
+      accountNumber: user.accountNumber,               // 계좌번호
       accountHolder: user.accountHolder,               // 예금주
       address: user.address,                           // 주소
       carSettlement: user.carSettlement,               // 자동차정산
