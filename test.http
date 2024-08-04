@@ -4,8 +4,11 @@ POST http://localhost:4000/long/date-range
 Content-Type: application/json
 
 {
-  "startDate": "2024-07-01",
-  "endDate": "2024-07-31"
+  "startDate": "2024-08-01",
+  "endDate": "2024-08-31",
+  "dateType": "paymentEndDate",
+  "contractStatus": "statusAll"
+
 }
 
 # GET 요청: 사용자관리 - 지점별 - 기본
