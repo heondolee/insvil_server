@@ -13,10 +13,7 @@ router.get("/", async (req, res) => {
 router.post("/date-range", async (req, res) => {
   const { startDate, endDate, dateType, contractStatus } = req.body;
 
-  // 날짜 형식 검증
-  const isValidDate = (date) => {
-    return /^\d{4}-\d{2}-\d{2}$/.test(date);
-  };
+  const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
   if (!isValidDate(startDate) || !isValidDate(endDate)) {
     return res.status(400).send({
@@ -24,7 +21,6 @@ router.post("/date-range", async (req, res) => {
     });
   }
 
-  // dateType 검증
   const validDateTypes = ["contractDate", "paymentStartDate", "paymentEndDate"];
   if (!validDateTypes.includes(dateType)) {
     return res.status(400).send({
@@ -33,61 +29,39 @@ router.post("/date-range", async (req, res) => {
   }
 
   try {
-    // 데이터베이스 쿼리 조건 초기화
     const queryConditions = {
       [dateType]: {
         [db.Sequelize.Op.between]: [startDate, endDate],
       },
     };
-  
-    // contractStatus에 따른 조건 추가
+
     if (contractStatus !== 'statusAll') {
-      switch (contractStatus) {
-        case 'statusMaintain':
-          queryConditions.contractStatus = '유지';
-          break;
-        case 'statusLapse':
-          queryConditions.contractStatus = '실효';
-          break;
-        case 'statusTerminate':
-          queryConditions.contractStatus = '해지';
-          break;
-        case 'statusWithdraw':
-          queryConditions.contractStatus = '철회';
-          break;
-        case 'statusCancel':
-          queryConditions.contractStatus = '취소';
-          break;
-        case 'statusExpire':
-          queryConditions.contractStatus = '만기';
-          break;
-        default:
-          // 잘못된 contractStatus가 주어졌을 경우 처리
-          throw new Error('잘못된 contractStatus 값입니다.');
+      const statusMapping = {
+        statusMaintain: '유지',
+        statusLapse: '실효',
+        statusTerminate: '해지',
+        statusWithdraw: '철회',
+        statusCancel: '취소',
+        statusExpire: '만기',
+      };
+      if (!statusMapping[contractStatus]) {
+        throw new Error('잘못된 contractStatus 값입니다.');
       }
+      queryConditions.contractStatus = statusMapping[contractStatus];
     }
 
-    // 정렬 순서 설정
-    let order = [];
-    if (dateType === 'paymentEndDate') {
-      order = [[dateType, 'ASC']]; // paymentEndDate는 오름차순 정렬
-    } else {
-      order = [[dateType, 'DESC']]; // contractDate와 paymentStartDate는 내림차순 정렬
-    }
-  
-    // 데이터베이스 쿼리 실행
+    const order = dateType === 'paymentEndDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
+
     const longs = await Long.findAll({
       where: queryConditions,
-      order: order, // 정렬 조건 추가
+      order,
     });
-  
-    // 응답 전송
+
+    console.log(longs.length)
     res.status(200).send({ longs: longs });
   } catch (error) {
-    // 오류 응답 전송
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
   }
-  
 });
 
 module.exports = router;
