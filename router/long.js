@@ -57,7 +57,6 @@ router.post("/date-range", async (req, res) => {
       order,
     });
 
-    console.log(longs.length)
     res.status(200).send({ longs: longs });
   } catch (error) {
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
