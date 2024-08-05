@@ -30,4 +30,20 @@ router.post("/list", async (req, res) => {
   }
 });
 
+router.post("/detail", async (req, res) => {
+  const { customerName } = req.body;
+
+  try {
+    const customer = await Customer.findOne({
+      where: {
+        customerName: customerName,
+      },
+    });
+    res.status(200).json(customer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
