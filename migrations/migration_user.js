@@ -1,7 +1,9 @@
 'use strict';
-/** @type {import('sequelize-cli').Migration} */
+
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  // 마이그레이션을 실행할 때 실행되는 함수
+  up: async (queryInterface, Sequelize) => {
+    // 테이블을 생성하는 코드
     await queryInterface.createTable('Users', {
       id: {
         allowNull: false,
@@ -119,15 +121,19 @@ module.exports = {
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },
-  async down(queryInterface, Sequelize) {
+  // 마이그레이션을 되돌릴 때 실행되는 함수
+  down: async (queryInterface, Sequelize) => {
+    // 테이블을 삭제하는 코드
     await queryInterface.dropTable('Users');
   }
 };

@@ -1,103 +1,286 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Car extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       // define association here
     }
   }
+
   Car.init({
-    branch: DataTypes.STRING,
-    team: DataTypes.STRING,
-    manager: DataTypes.STRING,
-    managerName: DataTypes.STRING,
-    userId: DataTypes.STRING,
-    actualUser: DataTypes.STRING,
-    contractCompany: DataTypes.STRING,
-    agencyCode: DataTypes.STRING,
-    agencyName: DataTypes.STRING,
-    annualInsuranceFee: DataTypes.TEXT,
-    initialInsuranceFee: DataTypes.TEXT,
-    installmentInsuranceFee: DataTypes.TEXT,
-    insured: DataTypes.TEXT,
-    insuredBirthDateGender: DataTypes.TEXT,
-    policyHolder: DataTypes.TEXT,
-    policyHolderBirthDateGender: DataTypes.TEXT,
-    carNumber: DataTypes.STRING,
-    design: DataTypes.TEXT,
-    consultationStatus: DataTypes.STRING,
-    contractStatus: DataTypes.STRING,
-    propertyType: DataTypes.STRING,
-    startDate: DataTypes.STRING,
-    endDate: DataTypes.STRING,
-    receiptDate: DataTypes.STRING,
-    consultationPath: DataTypes.TEXT,
-    extra1: DataTypes.TEXT,
-    paymentMethod: DataTypes.STRING,
-    consultant: DataTypes.TEXT,
-    percent: DataTypes.STRING,
-    cyberMoney: DataTypes.STRING,
-    gift: DataTypes.STRING,
-    designNumber: DataTypes.STRING,
-    policyNumber: DataTypes.STRING,
-    previousContractCompany: DataTypes.STRING,
-    insuredPostalCode: DataTypes.STRING,
-    insuredAddress1: DataTypes.TEXT,
-    insuredAddress2: DataTypes.TEXT,
-    policyHolderPostalCode: DataTypes.STRING,
-    policyHolderAddress1: DataTypes.TEXT,
-    policyHolderAddress2: DataTypes.TEXT,
-    relationshipWithInsured: DataTypes.STRING,
-    relationshipWithDesignated1: DataTypes.STRING,
-    designated1Name: DataTypes.TEXT,
-    minimumDriverName: DataTypes.TEXT,
-    spouseName: DataTypes.TEXT,
-    insuranceType: DataTypes.STRING,
-    carType: DataTypes.STRING,
-    mileageApplication: DataTypes.STRING,
-    ageLimit: DataTypes.STRING,
-    driverLimit: DataTypes.STRING,
-    carNameCode: DataTypes.STRING,
-    modelYear: DataTypes.STRING,
-    carName: DataTypes.STRING,
-    engineDisplacement: DataTypes.STRING,
-    specialRate: DataTypes.STRING,
-    accessory: DataTypes.TEXT,
-    accessoryPrice: DataTypes.STRING,
-    carValue: DataTypes.STRING,
-    totalCarValue: DataTypes.STRING,
-    liabilityCoverage: DataTypes.STRING,
-    personalInjuryCoverage: DataTypes.STRING,
-    propertyDamageCoverage: DataTypes.STRING,
-    selfInjuryCoverage: DataTypes.STRING,
-    uninsuredCoverage: DataTypes.STRING,
-    ownDamageCoverage: DataTypes.STRING,
-    emergencyRoadsideAssistance: DataTypes.STRING,
-    insuranceHistory: DataTypes.TEXT,
-    legalViolations: DataTypes.TEXT,
-    discountSurcharge: DataTypes.STRING,
-    specialSurcharge1: DataTypes.STRING,
-    specialSurcharge2: DataTypes.STRING,
-    threeYearAccidentRate: DataTypes.STRING,
-    oneYearAccidentPoints: DataTypes.STRING,
-    threeYearAccidentPoints: DataTypes.STRING,
-    carInsuranceHistory: DataTypes.TEXT,
-    otherOwnedVehicles: DataTypes.TEXT,
-    currentMileage: DataTypes.STRING,
-    annualMileage: DataTypes.STRING,
-    mileageDiscount: DataTypes.STRING,
-    entryDate: DataTypes.STRING,
-    customerCounselingContent: DataTypes.TEXT
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
+    branch: {
+      type: DataTypes.TEXT
+    },
+    team: {
+      type: DataTypes.TEXT
+    },
+    manager: {
+      type: DataTypes.TEXT
+    },
+    managerName: {
+      type: DataTypes.TEXT
+    },
+    userID: {
+      type: DataTypes.TEXT
+    },
+    actualUser: {
+      type: DataTypes.TEXT
+    },
+    contractCompany: {
+      type: DataTypes.TEXT
+    },
+    agencyCode: {
+      type: DataTypes.TEXT
+    },
+    agencyName: {
+      type: DataTypes.TEXT
+    },
+    annualPremium: {
+      type: DataTypes.TEXT
+    },
+    initialPremium: {
+      type: DataTypes.TEXT
+    },
+    installmentPremium: {
+      type: DataTypes.TEXT
+    },
+    insured: {
+      type: DataTypes.TEXT
+    },
+    dobGender: {
+      type: DataTypes.TEXT
+    },
+    contractor: {
+      type: DataTypes.TEXT
+    },
+    contractorDobGender: {
+      type: DataTypes.TEXT
+    },
+    vehicleNumber: {
+      type: DataTypes.TEXT
+    },
+    design: {
+      type: DataTypes.TEXT
+    },
+    counselStatus: {
+      type: DataTypes.TEXT
+    },
+    contractStatus: {
+      type: DataTypes.TEXT
+    },
+    itemCategory: {
+      type: DataTypes.TEXT
+    },
+    startDate: {
+      type: DataTypes.TEXT
+    },
+    endDate: {
+      type: DataTypes.TEXT
+    },
+    receiptDate: {
+      type: DataTypes.TEXT
+    },
+    counselRoute: {
+      type: DataTypes.TEXT
+    },
+    additionalInfo1: {
+      type: DataTypes.TEXT
+    },
+    paymentMethod: {
+      type: DataTypes.TEXT
+    },
+    counselor: {
+      type: DataTypes.TEXT
+    },
+    percent: {
+      type: DataTypes.TEXT
+    },
+    cyberMoney: {
+      type: DataTypes.TEXT
+    },
+    gift: {
+      type: DataTypes.TEXT
+    },
+    designNumber: {
+      type: DataTypes.TEXT
+    },
+    policyNumber: {
+      type: DataTypes.TEXT
+    },
+    previousCompany: {
+      type: DataTypes.TEXT
+    },
+    insuredZipCode: {
+      type: DataTypes.TEXT
+    },
+    insuredAddress1: {
+      type: DataTypes.TEXT
+    },
+    insuredAddress2: {
+      type: DataTypes.TEXT
+    },
+    contractorZipCode: {
+      type: DataTypes.TEXT
+    },
+    contractorAddress1: {
+      type: DataTypes.TEXT
+    },
+    contractorAddress2: {
+      type: DataTypes.TEXT
+    },
+    relationshipWithInsured: {
+      type: DataTypes.TEXT
+    },
+    relationshipWithDesignated: {
+      type: DataTypes.TEXT
+    },
+    designatedName: {
+      type: DataTypes.TEXT
+    },
+    minimumDriverName: {
+      type: DataTypes.TEXT
+    },
+    spouseName: {
+      type: DataTypes.TEXT
+    },
+    insuranceType: {
+      type: DataTypes.TEXT
+    },
+    vehicleType: {
+      type: DataTypes.TEXT
+    },
+    mileageApplication: {
+      type: DataTypes.TEXT
+    },
+    ageLimit: {
+      type: DataTypes.TEXT
+    },
+    driverLimit: {
+      type: DataTypes.TEXT
+    },
+    vehicleCode: {
+      type: DataTypes.TEXT
+    },
+    manufactureYear: {
+      type: DataTypes.TEXT
+    },
+    vehicleName: {
+      type: DataTypes.TEXT
+    },
+    engineCapacity: {
+      type: DataTypes.TEXT
+    },
+    specialRate: {
+      type: DataTypes.TEXT
+    },
+    accessories: {
+      type: DataTypes.TEXT
+    },
+    accessoriesPrice: {
+      type: DataTypes.TEXT
+    },
+    vehicleValue: {
+      type: DataTypes.TEXT
+    },
+    totalVehicleValue: {
+      type: DataTypes.TEXT
+    },
+    bodilyInjury1: {
+      type: DataTypes.TEXT
+    },
+    bodilyInjury2: {
+      type: DataTypes.TEXT
+    },
+    propertyDamage: {
+      type: DataTypes.TEXT
+    },
+    personalInjury: {
+      type: DataTypes.TEXT
+    },
+    uninsuredMotorist: {
+      type: DataTypes.TEXT
+    },
+    vehicleDamage: {
+      type: DataTypes.TEXT
+    },
+    emergencyDispatch: {
+      type: DataTypes.TEXT
+    },
+    insuranceHistory: {
+      type: DataTypes.TEXT
+    },
+    trafficViolations: {
+      type: DataTypes.TEXT
+    },
+    discountSurcharge: {
+      type: DataTypes.TEXT
+    },
+    specialSurcharge1: {
+      type: DataTypes.TEXT
+    },
+    specialSurcharge2: {
+      type: DataTypes.TEXT
+    },
+    threeYearAccidentRate: {
+      type: DataTypes.TEXT
+    },
+    oneYearAccidentPoints: {
+      type: DataTypes.TEXT
+    },
+    threeYearAccidentPoints: {
+      type: DataTypes.TEXT
+    },
+    vehicleInsuranceHistory: {
+      type: DataTypes.TEXT
+    },
+    otherVehicles: {
+      type: DataTypes.TEXT
+    },
+    currentMileage: {
+      type: DataTypes.TEXT
+    },
+    annualMileage: {
+      type: DataTypes.TEXT
+    },
+    mileageDiscount: {
+      type: DataTypes.TEXT
+    },
+    entryDate: {
+      type: DataTypes.TEXT
+    },
+    customerConsultationDetails: {
+      type: DataTypes.TEXT
+    },
+    priorConsent: {
+      type: DataTypes.TEXT
+    },
+    consentDate: {
+      type: DataTypes.TEXT
+    },
+    consentNumber: {
+      type: DataTypes.TEXT
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    }
   }, {
     sequelize,
     modelName: 'Car',
   });
+
   return Car;
 };
