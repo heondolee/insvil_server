@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractStatus, contractor, carNumber } = req.body;
+  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -21,10 +21,10 @@ router.post("/date-range", async (req, res) => {
     });
   }
 
-  const validDateTypes = ["contractDate", "paymentStartDate", "paymentEndDate"];
+  const validDateTypes = ["inputDate", "startDate", "endDate"];
   if (!validDateTypes.includes(dateType)) {
     return res.status(400).send({
-      error: "유효하지 않은 dateType입니다. contractDate, paymentStartDate, paymentEndDate 중 하나여야 합니다.",
+      error: "유효하지 않은 dateType입니다. inputDate, startDate, endDate 중 하나여야 합니다.",
     });
   }
 
@@ -33,40 +33,51 @@ router.post("/date-range", async (req, res) => {
 
     if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
-    } else if (carNumber && carNumber.trim() !== '') {
+    }
+
+    if (responsibilityName && responsibilityName.trim() !== '') {
+      queryConditions.responsibilityName = responsibilityName;
+    }
+
+    if (carNumber && carNumber.trim() !== '') {
       queryConditions.carNumber = carNumber;
-    } else {
+    }
+
+    if (dateType && startDate && endDate) {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate],
       };
-
-      if (contractStatus !== 'statusAll') {
-        const statusMapping = {
-          statusMaintain: '유지',
-          statusLapse: '실효',
-          statusTerminate: '해지',
-          statusWithdraw: '철회',
-          statusCancel: '취소',
-          statusExpire: '만기',
-        };
-        if (!statusMapping[contractStatus]) {
-          throw new Error('잘못된 contractStatus 값입니다.');
-        }
-        queryConditions.contractStatus = statusMapping[contractStatus];
-      }
     }
 
-    const order = dateType === 'paymentEndDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
+    const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
 
-    const longs = await Long.findAll({
+    const cars = await Car.findAll({
       where: queryConditions,
       order,
     });
 
-    res.status(200).send({ longs: longs });
+    res.status(200).send({ cars: cars });
   } catch (error) {
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
   }
 });
+
+// 특정 contractor의 car 데이터 조회
+router.post("/detail", async (req, res) => {
+  const { contractorName } = req.body;
+
+  try {
+    const cars = await Car.findAll({
+      where: {
+        contractor: contractorName,
+      },
+    });
+    res.status(200).send({ cars: cars });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 
 module.exports = router;
