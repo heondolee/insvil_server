@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 long 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractStatus, contractor, policyNumber } = req.body;
+  const { startDate, endDate, dateType, contractStatus, contractor, responsibleName, policyNumber } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -31,30 +31,43 @@ router.post("/date-range", async (req, res) => {
   try {
     const queryConditions = {};
 
+    // contractor가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
     if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
-    } else if (policyNumber && policyNumber.trim() !== '') {
+    }
+    
+    // policyNumber가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
+    if (policyNumber && policyNumber.trim() !== '') {
       queryConditions.policyNumber = policyNumber;
-    } else {
+    }
+    
+    // responsibleName이 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
+    if (responsibleName && responsibleName.trim() !== '') {
+      queryConditions.responsibleName = responsibleName;
+    }
+    
+    // dateType, startDate, endDate가 제공된 경우, 쿼리 조건에 추가합니다.
+    if (dateType && startDate && endDate) {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate],
       };
-
-      if (contractStatus !== 'statusAll') {
-        const statusMapping = {
-          statusMaintain: '유지',
-          statusLapse: '실효',
-          statusTerminate: '해지',
-          statusWithdraw: '철회',
-          statusCancel: '취소',
-          statusExpire: '만기',
-        };
-        if (!statusMapping[contractStatus]) {
-          throw new Error('잘못된 contractStatus 값입니다.');
-        }
-        queryConditions.contractStatus = statusMapping[contractStatus];
-      }
     }
+    
+    // contractStatus가 제공되고 'statusAll'이 아닌 경우, 쿼리 조건에 추가합니다.
+    if (contractStatus && contractStatus !== 'statusAll') {
+      const statusMapping = {
+        statusMaintain: '유지',
+        statusLapse: '실효',
+        statusTerminate: '해지',
+        statusWithdraw: '철회',
+        statusCancel: '취소',
+        statusExpire: '만기',
+      };
+      if (!statusMapping[contractStatus]) {
+        throw new Error('잘못된 contractStatus 값입니다.');
+      }
+      queryConditions.contractStatus = statusMapping[contractStatus];
+    }    
 
     const order = dateType === 'paymentEndDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
 
