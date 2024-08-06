@@ -2,16 +2,16 @@ const express = require("express");
 const router = express.Router();
 const db = require("../models");
 
-const { Long } = db;
+const { Car } = db;
 
-// 모든 long 데이터 조회
+// 모든 car 데이터 조회
 router.get("/", async (req, res) => {
-  res.status(200).send({ longs: "장기샘플 데이터" });
+  res.status(200).send({ cars: "자동차 데이터" });
 });
 
-// 계약일에 맞는 long 데이터 조회
+// 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractStatus, contractor, policyNumber } = req.body;
+  const { startDate, endDate, dateType, contractStatus, contractor, carNumber } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -33,8 +33,8 @@ router.post("/date-range", async (req, res) => {
 
     if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
-    } else if (policyNumber && policyNumber.trim() !== '') {
-      queryConditions.policyNumber = policyNumber;
+    } else if (carNumber && carNumber.trim() !== '') {
+      queryConditions.carNumber = carNumber;
     } else {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate],
@@ -66,23 +66,6 @@ router.post("/date-range", async (req, res) => {
     res.status(200).send({ longs: longs });
   } catch (error) {
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
-  }
-});
-
-// 특정 contractor의 long 데이터 조회
-router.post("/detail", async (req, res) => {
-  const { contractorName } = req.body;
-
-  try {
-    const longs = await Long.findAll({
-      where: {
-        contractor: contractorName,
-      },
-    });
-    res.status(200).send({ longs: longs });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
 
