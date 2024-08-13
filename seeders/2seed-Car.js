@@ -4,17 +4,17 @@ let XLSX = require('xlsx');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // 시퀀스를 다시 시작하는 로직 추가
     await queryInterface.sequelize.query('ALTER TABLE Cars AUTO_INCREMENT = 1;');
 
     let workbook = XLSX.readFile(__dirname + '/../public/stylesheets/2car.xlsx');
-    let worksheet = workbook.Sheets[workbook.SheetNames[0]]; // 첫 번째 시트를 선택
-    let range = XLSX.utils.decode_range(worksheet['!ref']); // 시트의 데이터 범위를 가져옵니다.
+    let worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    let range = XLSX.utils.decode_range(worksheet['!ref']);
 
     let now = new Date();
     let data = [];
-    // 데이터 범위 내의 모든 행을 순회합니다.
-    for (let i = range.s.r + 1; i <= range.e.r; i++) { // range.s.r + 1 은 헤더를 제외하고 데이터부터 시작
+    const CHUNK_SIZE = 1000; // 청크 크기 설정
+
+    for (let i = range.s.r + 1; i <= range.e.r; i++) {
       let row = [];
       for (let j = range.s.c; j <= range.e.c; j++) {
         let cell_address = { c: j, r: i };
@@ -112,9 +112,16 @@ module.exports = {
       };
 
       data.push(obj);
+
+      if (data.length === CHUNK_SIZE) {
+        await queryInterface.bulkInsert('Cars', data, {});
+        data = [];
+      }
     }
 
-    return queryInterface.bulkInsert('Cars', data, {});
+    if (data.length > 0) {
+      await queryInterface.bulkInsert('Cars', data, {});
+    }
   },
 
   async down(queryInterface, Sequelize) {
