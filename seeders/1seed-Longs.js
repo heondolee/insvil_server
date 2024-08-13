@@ -3,7 +3,7 @@ let XLSX = require('xlsx');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     // 시퀀스를 다시 시작하는 로직 추가
     await queryInterface.sequelize.query('ALTER TABLE Longs AUTO_INCREMENT = 1;');
 
@@ -13,6 +13,8 @@ module.exports = {
 
     let now = new Date();
     let data = [];
+    const CHUNK_SIZE = 1000; // 한 번에 처리할 데이터 크기 설정
+
     // 데이터 범위 내의 모든 행을 순회합니다.
     for (let i = range.s.r + 1; i <= range.e.r; i++) { // range.s.r + 1 은 헤더를 제외하고 데이터부터 시작
       let row = [];
@@ -86,12 +88,21 @@ module.exports = {
       };
 
       data.push(obj);
+
+      // CHUNK_SIZE에 도달할 때마다 데이터베이스에 삽입
+      if (data.length === CHUNK_SIZE) {
+        await queryInterface.bulkInsert('Longs', data, {});
+        data = []; // 삽입 후 배열 초기화
+      }
     }
 
-    return queryInterface.bulkInsert('Longs', data, {});
+    // 남은 데이터를 처리
+    if (data.length > 0) {
+      await queryInterface.bulkInsert('Longs', data, {});
+    }
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.bulkDelete('Longs', null, {});
   }
 };
