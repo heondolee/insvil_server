@@ -30,11 +30,20 @@ Content-Type: application/json
 ###
 GET http://localhost:4000/user/manager
 
-# GET 요청: 사용자관리 - 이름으로 상세 조회
+# POST 요청: 사용자관리 - 이름으로 상세 조회
 ###
 POST  http://localhost:4000/user/detail
 Content-Type: application/json
 
 {
   "userName": "i1001"
+}
+
+# POST 요청: 자료실
+###
+POST http://localhost:4000/dataroom
+Content-Type: application/json
+
+{
+  "writerName": "인스빌"
 }
