@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     Title: DataTypes.TEXT,
     Author: DataTypes.TEXT,
     Date: DataTypes.TEXT,
-    Content: DataTypes.TEXT
+    Content: DataTypes.TEXT,
+    FileUrl: DataTypes.TEXT
   }, {
     sequelize,
     modelName: 'Reference',

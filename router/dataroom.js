@@ -2,9 +2,26 @@ const express = require("express");
 const router = express.Router();
 const db = require("../models");
 const { Op } = require("sequelize");
-
-
+const multer = require('multer');
+const path = require('path'); // path 모듈 추가
+const fs = require('fs');
 const { Reference } = db;
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/files');
+  },
+  filename: function (req, file, cb) {
+    const date = new Date();
+    const formattedDate = date.toISOString().replace(/[:.]/g, '-'); // ISO 형식을 파일명에 적합하게 변환
+    const safeName = file.originalname.replace(/[^a-z0-9.]/gi, '').toLowerCase();
+    const nameWithDate = `${formattedDate}-${safeName}`;
+    cb(null, nameWithDate);
+  }
+});
+
+const upload = multer({ storage: storage });
 
 // 지점별 조회 - 기본
 router.post("/", async (req, res) => {
@@ -69,18 +86,22 @@ function formatDateToSQLString(date) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", upload.single('file'), async (req, res) => {
   try {
     const { title, content } = req.body;
     const reference = await Reference.findByPk(req.params.id);
-
     if (!reference) {
       return res.status(404).json({ message: "해당 자료를 찾을 수 없습니다." });
     }
 
     reference.Title = title || reference.Title;
     reference.Content = content || reference.Content;
-    reference.Date = formatDateToSQLString(new Date()); // 수정 시간을 지정된 형식으로 추가
+    reference.Date = formatDateToSQLString(new Date());
+
+    if (req.file) {
+      reference.FileUrl = req.file.path;
+    }
+
     await reference.save();
 
     res.status(200).send(reference);
@@ -90,15 +111,18 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.post("/new", async (req, res) => {
+
+router.post("/new", upload.single('file'), async (req, res) => {
   try {
     const { title, content } = req.body;
-    const currentDateTime = formatDateToSQLString(new Date()); // 현재 날짜와 시간을 지정된 형식으로 가져옴
+    const fileUrl = req.file ? req.file.path : null;
+    const currentDateTime = formatDateToSQLString(new Date());
 
     const reference = await Reference.create({
       Title: title,
       Content: content,
-      Date: currentDateTime // 생성 시간을 지정된 형식으로 추가
+      Date: currentDateTime,
+      FileUrl: fileUrl
     });
 
     res.status(201).send(reference);
@@ -108,16 +132,20 @@ router.post("/new", async (req, res) => {
   }
 });
 
-// 특정 Reference 삭제
+
+
 router.delete("/:id", async (req, res) => {
   try {
     const reference = await Reference.findByPk(req.params.id);
-
     if (!reference) {
       return res.status(404).json({ message: "해당 자료를 찾을 수 없습니다." });
     }
 
-    await reference.destroy(); // 데이터 삭제
+    if (reference.FileUrl) {
+      fs.unlinkSync(reference.FileUrl);
+    }
+
+    await reference.destroy();
     res.status(200).json({ message: "자료가 성공적으로 삭제되었습니다." });
   } catch (error) {
     console.error(error);
@@ -125,5 +153,17 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// 파일 다운로드 엔드포인트 추가
+router.get("/download/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '..', 'public', 'files', filename);
+
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      console.error("Error downloading file:", err);
+      res.status(500).json({ message: "파일 다운로드에 실패했습니다." });
+    }
+  });
+});
 
 module.exports = router;

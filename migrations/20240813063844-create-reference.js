@@ -21,6 +21,10 @@ module.exports = {
       Content: {
         type: Sequelize.TEXT
       },
+      FileUrl: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
