@@ -3,7 +3,7 @@ const ExcelJS = require('exceljs');
 const router = express.Router();
 const db = require("../models");
 
-const { Long, Car, User, Customer } = db;
+const { Long, Car, User, Customer, Reference } = db;
 
 router.post('/:part', async (req, res) => {
   try {
@@ -24,6 +24,9 @@ router.post('/:part', async (req, res) => {
         break;
       case 'customer':
         Model = Customer;
+        break;
+      case 'reference':
+        Model = Reference;
         break;
       default:
         return res.status(400).send('Invalid model name');
