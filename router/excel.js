@@ -33,8 +33,8 @@ router.post('/:part', async (req, res) => {
 
     const offset = (part - 1) * pageSize;
     const records = await Model.findAll({
-      offset,
-      limit: pageSize,
+      // offset,
+      // limit: pageSize,
     });
 
     if (records.length === 0) {
