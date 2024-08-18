@@ -10,7 +10,6 @@ router.post('/:part', async (req, res) => {
     const { modelName, pageSize = 3000 } = req.body;
     const { part } = req.params;
 
-    console.log(`Request received for model: ${modelName}, part: ${part}`); // 디버깅용 콘솔 로그
 
     let Model;
     switch (modelName.toLowerCase()) {
@@ -27,7 +26,6 @@ router.post('/:part', async (req, res) => {
         Model = Customer;
         break;
       default:
-        console.error('Invalid model name provided'); // 디버깅용 콘솔 로그
         return res.status(400).send('Invalid model name');
     }
 
@@ -38,7 +36,6 @@ router.post('/:part', async (req, res) => {
     });
 
     if (records.length === 0) {
-      console.log(`No more data found for part ${part}`); // 디버깅용 콘솔 로그
       return res.status(404).send('No more data to download');
     }
 
@@ -69,9 +66,7 @@ router.post('/:part', async (req, res) => {
     await workbook.xlsx.write(res);
     res.end();
 
-    console.log(`Successfully generated and sent part ${part} of ${modelName}`); // 디버깅용 콘솔 로그
   } catch (error) {
-    console.error('Error downloading the excel file:', error);
     res.status(500).send('Error generating the excel file');
   }
 });
