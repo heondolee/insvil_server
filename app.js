@@ -17,12 +17,14 @@ const customerRouter = require('./router/customer.js');
 const carRouter = require('./router/car.js');
 const referenceRouter = require('./router/dataroom.js');
 const excelRouter = require('./router/excel.js');
+const normalRouter = require('./router/normal.js');
 
 app.use('/long', longRouter);
 app.use('/login', loginRouter);
 app.use('/user', userRouter);
 app.use('/customer', customerRouter);
 app.use('/car', carRouter);
+app.use('/normal', normalRouter);
 app.use('/dataroom', referenceRouter);
 app.use('/download-excel', excelRouter);
 

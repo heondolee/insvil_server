@@ -11,6 +11,19 @@ Content-Type: application/json
 
 }
 
+# POST 요청: 일반보험 계약일 범위로 조회
+### 
+POST http://localhost:4000/normal/date-range
+Content-Type: application/json
+
+{
+  "startDate": "2024-08-01",
+  "endDate": "2024-08-31",
+  "dateType": "contractDate",
+  "contractStatus": "statusAll"
+
+}
+
 # GET 요청: 사용자관리 - 지점별 - 기본
 ###
 GET http://localhost:4000/user/branch
