@@ -3,13 +3,11 @@ const ExcelJS = require('exceljs');
 const router = express.Router();
 const db = require("../models");
 
-const { Long, Car, User, Customer, Reference } = db;
+const { Long, Car, User, Customer, Reference, Normal } = db;
 
-router.post('/:part', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { modelName, pageSize = 3000 } = req.body;
-    const { part } = req.params;
-
+    const { modelName } = req.body;
 
     let Model;
     switch (modelName.toLowerCase()) {
@@ -28,22 +26,21 @@ router.post('/:part', async (req, res) => {
       case 'reference':
         Model = Reference;
         break;
+      case 'normal':
+        Model = Normal;
+        break;
       default:
         return res.status(400).send('Invalid model name');
     }
 
-    const offset = (part - 1) * pageSize;
-    const records = await Model.findAll({
-      // offset,
-      // limit: pageSize,
-    });
+    const records = await Model.findAll();
 
     if (records.length === 0) {
-      return res.status(404).send('No more data to download');
+      return res.status(404).send('No data available');
     }
 
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(`${modelName}_Part_${part}`);
+    const worksheet = workbook.addWorksheet(modelName);
 
     const columns = Object.keys(records[0].dataValues).map(key => ({
       header: key.charAt(0).toUpperCase() + key.slice(1),
@@ -63,7 +60,7 @@ router.post('/:part', async (req, res) => {
     );
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=${modelName}_part_${part}.xlsx`
+      `attachment; filename=${modelName}.xlsx`
     );
 
     await workbook.xlsx.write(res);
