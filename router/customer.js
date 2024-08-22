@@ -77,4 +77,19 @@ router.post("/update", async (req, res) => {
   }
 });
 
+router.delete("/delete", async (req, res) => {
+  const { id } = req.body;
+  try {
+    await Customer.destroy({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json({ message: "삭제되었습니다." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;
