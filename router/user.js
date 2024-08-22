@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const db = require("../models");
 
+const { Op } = require("sequelize");
+
 const { User } = db;
 
 // 지점별 조회 - 기본
@@ -227,6 +229,24 @@ router.post("/detail", async (req, res) => {
     };
 
     res.status(200).send(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.post("/list", async (req, res) => {
+  const { managerName } = req.body;
+
+  try {
+    const managers = await User.findAll({
+      where: {
+        manager: {
+          [Op.like]: `%${managerName}%`,
+        },
+      },
+    });
+    res.status(200).json(managers);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
