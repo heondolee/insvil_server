@@ -99,4 +99,45 @@ router.post("/detail", async (req, res) => {
   }
 });
 
+router.post("/create", async (req, res) => {
+  const longData = req.body;
+  try {
+    const long = await Long.create(longData);
+    res.status(200).json(long);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.post("/update", async (req, res) => {
+  const longData = req.body;
+  try {
+    const long = await Long.update(longData, {
+      where: {
+        id: longData.id,
+      },
+    });
+    res.status(200).json(long);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.delete("/delete", async (req, res) => {
+  const { id } = req.body;
+  try {
+    await Long.destroy({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json({ message: "삭제되었습니다." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 module.exports = router;

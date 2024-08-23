@@ -51,7 +51,6 @@ router.post("/detail", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   const customerData = req.body;
-  console.log(customerData);
   
   try {
     const customer = await Customer.create(customerData);

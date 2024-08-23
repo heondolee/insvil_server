@@ -79,5 +79,46 @@ router.post("/detail", async (req, res) => {
   }
 });
 
+router.post("/create", async (req, res) => {
+  const carData = req.body;
+  try {
+    const car = await Car.create(carData);
+    res.status(200).json(car);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.post("/update", async (req, res) => {
+  const carData = req.body;
+  try {
+    const car = await Car.update(carData, {
+      where: {
+        id: carData.id,
+      },
+    });
+    res.status(200).json(car);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.delete("/delete", async (req, res) => {
+  const { id } = req.body;
+  try {
+    await Car.destroy({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json({ message: "삭제되었습니다." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
 
 module.exports = router;
