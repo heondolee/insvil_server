@@ -76,13 +76,13 @@ router.post("/date-range", async (req, res) => {
 
 // 특정 policyholder의 long 데이터 조회
 router.post("/detail", async (req, res) => {
-  const { normalName } = req.body;
-  console.log(normalName);
+  const { id } = req.body;
+  console.log(id);
 
   try {
     const normal = await Normal.findOne({
       where: {
-        policyholder: normalName,
+        id: id,
       },
     });
     res.status(200).json(normal);

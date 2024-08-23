@@ -64,15 +64,15 @@ router.post("/date-range", async (req, res) => {
 
 // 특정 contractor의 car 데이터 조회
 router.post("/detail", async (req, res) => {
-  const { contractorName } = req.body;
+  const { id } = req.body;
 
   try {
-    const cars = await Car.findAll({
+    const car = await Car.findOne({
       where: {
-        contractor: contractorName,
+        id: id,
       },
     });
-    res.status(200).send({ cars: cars });
+    res.status(200).send(car);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });

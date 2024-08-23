@@ -84,15 +84,15 @@ router.post("/date-range", async (req, res) => {
 
 // 특정 contractor의 long 데이터 조회
 router.post("/detail", async (req, res) => {
-  const { contractorName } = req.body;
+  const { id } = req.body;
 
   try {
-    const longs = await Long.findAll({
+    const long = await Long.findOne({
       where: {
-        contractor: contractorName,
+        id: id,
       },
     });
-    res.status(200).send({ longs: longs });
+    res.status(200).send(long);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
