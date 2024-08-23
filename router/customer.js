@@ -34,12 +34,12 @@ router.post("/list", async (req, res) => {
 });
 
 router.post("/detail", async (req, res) => {
-  const { customerName } = req.body;
+  const { id } = req.body;
 
   try {
     const customer = await Customer.findOne({
       where: {
-        customerName: customerName,
+        id: id,
       },
     });
     res.status(200).json(customer);
@@ -51,7 +51,6 @@ router.post("/detail", async (req, res) => {
 
 router.post("/create", async (req, res) => {
   const customerData = req.body;
-  
   try {
     const customer = await Customer.create(customerData);
     res.status(200).json(customer);
