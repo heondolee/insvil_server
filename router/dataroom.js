@@ -50,7 +50,7 @@ router.post("/", async (req, res) => {
 router.get("/", async (req, res) => {  // (req, res)로 수정
   try {
     const references = await Reference.findAll({
-      order: [['createdAt', 'DESC']]  // createdAt 필드를 기준으로 내림차순 정렬
+      order: [['Date', 'DESC']]  // createdAt 필드를 기준으로 내림차순 정렬
     });
     res.status(200).send(references);
   } catch (error) {
