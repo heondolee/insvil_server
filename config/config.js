@@ -7,7 +7,8 @@ module.exports = {
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    timezone: '+09:00', // 한국 시간대로 설정 (KST)
   },
   test: {
     username: process.env.DB_USERNAME,
@@ -15,7 +16,8 @@ module.exports = {
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    timezone: '+09:00', // 한국 시간대로 설정 (KST)
   },
   production: {
     username: process.env.DB_USERNAME,
@@ -23,6 +25,7 @@ module.exports = {
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3306,
-    dialect: 'mysql'
+    dialect: 'mysql',
+    timezone: '+09:00', // 한국 시간대로 설정 (KST)
   }
 };
