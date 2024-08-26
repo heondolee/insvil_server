@@ -21,10 +21,10 @@ router.post("/date-range", async (req, res) => {
     });
   }
 
-  const validDateTypes = ["inputDate", "startDate", "endDate"];
+  const validDateTypes = ["receiptDate", "startDate", "endDate"];
   if (!validDateTypes.includes(dateType)) {
     return res.status(400).send({
-      error: "유효하지 않은 dateType입니다. inputDate, startDate, endDate 중 하나여야 합니다.",
+      error: "유효하지 않은 dateType입니다. receiptDate, startDate, endDate 중 하나여야 합니다.",
     });
   }
 
