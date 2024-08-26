@@ -4,13 +4,11 @@ const db = require("../models");
 
 const { User } = db;
 
-//모든 long 데이터 조회
-router.get("/", async (req, res) => {
-  const longs = await Long.findAll();
-  res.status(200).send({ longs: longs });
-});
-
-//로그인 하기
+//토큰 없을 때 로그인 하기
+/*
+1. 최초 로그인 시도하는 경우 -> 토큰 발급
+2. 로그아웃 했을 경우 -> 토큰이 재발급
+*/
 router.post("/", async (req, res) => {
   const { username, password } = req.body;
 
@@ -21,6 +19,11 @@ router.post("/", async (req, res) => {
   } else {
     return res.status(200).json({ user: user, success: true, message: "로그인 성공" });
   }
+});
+
+// 토큰 있을 때 자동 로그인
+router.post("/auto", async (req, res) => {
+  const { id } = req.body;
 });
 
 module.exports = router;

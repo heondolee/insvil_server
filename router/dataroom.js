@@ -31,8 +31,7 @@ router.post("/", async (req, res) => {
     const reference = await Reference.findAll({
       where: {
         [Op.or]: [
-          { Title: { [Op.like]: `%${searchKeyword}%` } },
-          { Content: { [Op.like]: `%${searchKeyword}%` } }
+          { Title: { [Op.like]: `%${searchKeyword}%` } }
         ]
       },
       order: [['createdAt', 'DESC']]  // createdAt 필드를 기준으로 내림차순 정렬
