@@ -35,7 +35,7 @@ router.get("/branch", async (req, res) => {
           mobilePhone: user.mobilePhone,                   // 핸드폰
           phone: user.phone,                               // 전화
           fax: user.fax,                                   // 팩스
-          carSettlement: user.carSettlement,               // 자동차정산
+          userSettlement: user.userSettlement,               // 자동차정산
           longTermSettlement: user.longTermSettlement,     // 장기정산
           lifeSettlement: user.lifeSettlement              // 생명정산
         }));
@@ -87,7 +87,7 @@ router.get("/team", async (req, res) => {
       mobilePhone: user.mobilePhone,                   // 핸드폰
       phone: user.phone,                               // 전화
       fax: user.fax,                                   // 팩스
-      carSettlement: user.carSettlement,               // 자동차정산
+      userSettlement: user.userSettlement,               // 자동차정산
       longTermSettlement: user.longTermSettlement,     // 장기정산
       lifeSettlement: user.lifeSettlement              // 생명정산
     }));
@@ -136,7 +136,7 @@ router.get("/name", async (req, res) => {
       mobilePhone: user.mobilePhone,                     // 핸드폰
       phone: user.phone,                                 // 전화
       fax: user.fax,                                     // 팩스
-      carSettlement: user.carSettlement,                 // 자동차정산
+      userSettlement: user.userSettlement,                 // 자동차정산
       longTermSettlement: user.longTermSettlement,       // 장기정산
       lifeSettlement: user.lifeSettlement                // 생명정산
     }));
@@ -222,7 +222,7 @@ router.post("/detail", async (req, res) => {
       accountNumber: user.accountNumber,               // 계좌번호
       accountHolder: user.accountHolder,               // 예금주
       address: user.address,                           // 주소
-      carSettlement: user.carSettlement,               // 자동차정산
+      userSettlement: user.userSettlement,               // 자동차정산
       longTermSettlement: user.longTermSettlement,     // 장기정산
       lifeSettlement: user.lifeSettlement,             // 생명정산
       other: user.other                               // 기타
@@ -252,5 +252,48 @@ router.post("/list", async (req, res) => {
     res.status(500).json({ message: "서버 오류가 발생했습니다." });
   }
 });
+
+router.post("/create", async (req, res) => {
+  const userData = req.body;
+  try {
+    const user = await User.create(userData);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.post("/update", async (req, res) => {
+  const userData = req.body;
+  try {
+    const user = await User.update(userData, {
+      where: {
+        id: userData.id,
+      },
+    });
+    res.status(200).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+router.delete("/delete", async (req, res) => {
+  const { id } = req.body;
+  try {
+    await User.destroy({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).json({ message: "삭제되었습니다." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
+
+
 
 module.exports = router;
