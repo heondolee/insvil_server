@@ -9,8 +9,6 @@ router.post('/', async (req, res) => {
   try {
     const { modelName, startDate, endDate, dateType } = req.body;
 
-    console.log("👍", modelName, startDate, endDate, dateType);
-
     let Model;
     switch (modelName.toLowerCase()) {
       case 'long':
@@ -61,8 +59,6 @@ router.post('/', async (req, res) => {
       },
       order: [[dateType, 'ASC']], // 날짜 순서대로 정렬
     });
-
-    console.log('first records👍:', records[1].dataValues);
 
     if (records.length === 0) {
       return res.status(404).send('No data available in this range');
@@ -131,8 +127,6 @@ router.get('/count', async (req, res) => {
       },
     });
 
-    console.log('count👍:', count);
-
     let offset = 0;
     while (offset < count) {
       // BATCH_SIZE만큼의 데이터를 조회하여 처음과 끝의 날짜를 가져옴
@@ -155,7 +149,6 @@ router.get('/count', async (req, res) => {
 
       offset += BATCH_SIZE;
     }
-    console.log('ranges👍:', ranges);
     res.status(200).json({ ranges });
 
   } catch (error) {
