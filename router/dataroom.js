@@ -87,14 +87,14 @@ function formatDateToSQLString(date) {
 
 router.put("/:id", upload.single('file'), async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { Title, Content } = req.body;
     const reference = await Reference.findByPk(req.params.id);
     if (!reference) {
       return res.status(404).json({ message: "해당 자료를 찾을 수 없습니다." });
     }
 
-    reference.Title = title || reference.Title;
-    reference.Content = content || reference.Content;
+    reference.Title = Title || reference.Title;
+    reference.Content = Content || reference.Content;
     reference.Date = formatDateToSQLString(new Date());
 
     if (req.file) {
@@ -113,13 +113,13 @@ router.put("/:id", upload.single('file'), async (req, res) => {
 
 router.post("/new", upload.single('file'), async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { Title, Content } = req.body;
     const fileUrl = req.file ? req.file.path : null;
     const currentDateTime = formatDateToSQLString(new Date());
 
     const reference = await Reference.create({
-      Title: title,
-      Content: content,
+      Title: Title,
+      Content: Content,
       Date: currentDateTime,
       FileUrl: fileUrl
     });
