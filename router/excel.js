@@ -5,11 +5,11 @@ const db = require("../models");
 
 const { Long, Car, User, Customer, Reference, Normal } = db;
 
-const BATCH_SIZE = 1000; // 한번에 처리할 레코드 수
-
 router.post('/', async (req, res) => {
   try {
-    const { modelName, start, end } = req.body;
+    const { modelName, startDate, endDate, dateType } = req.body;
+
+    console.log("👍", modelName, startDate, endDate, dateType);
 
     let Model;
     switch (modelName.toLowerCase()) {
@@ -54,10 +54,15 @@ router.post('/', async (req, res) => {
 
     // 해당 범위의 데이터 가져오기
     const records = await Model.findAll({
-      where: {},
-      offset: start - 1, // Sequelize의 offset은 0부터 시작하므로 1을 빼줍니다.
-      limit: end - start + 1,
+      where: {
+        [dateType]: {
+          [db.Sequelize.Op.between]: [startDate, endDate],
+        },
+      },
+      order: [[dateType, 'ASC']], // 날짜 순서대로 정렬
     });
+
+    console.log('first records👍:', records[1].dataValues);
 
     if (records.length === 0) {
       return res.status(404).send('No data available in this range');
@@ -74,7 +79,7 @@ router.post('/', async (req, res) => {
     );
     res.setHeader(
       'Content-Disposition',
-      `attachment; filename=${modelName}_${start}-${end}.xlsx`
+      `attachment; filename=${modelName}_${startDate}_${endDate}.xlsx`
     );
 
     await workbook.xlsx.write(res);
@@ -86,10 +91,13 @@ router.post('/', async (req, res) => {
   }
 });
 
+
 // 백엔드에 행 수를 가져오는 API 추가
 router.get('/count', async (req, res) => {
   try {
-    const { modelName } = req.query;
+    const { modelName, startDate, endDate, dateType } = req.query;
+    const BATCH_SIZE = 1000;
+    const ranges = [];
 
     let Model;
     switch (modelName.toLowerCase()) {
@@ -115,13 +123,47 @@ router.get('/count', async (req, res) => {
         return res.status(400).send('Invalid model name');
     }
 
-    const count = await Model.count();
-    res.status(200).json({ count });
+    const count = await Model.count({
+      where: {
+        [dateType]: {
+          [db.Sequelize.Op.between]: [startDate, endDate],
+        },
+      },
+    });
+
+    console.log('count👍:', count);
+
+    let offset = 0;
+    while (offset < count) {
+      // BATCH_SIZE만큼의 데이터를 조회하여 처음과 끝의 날짜를 가져옴
+      const batchData = await Model.findAll({
+        where: {
+          [dateType]: {
+            [db.Sequelize.Op.between]: [startDate, endDate],
+          }
+        },
+        order: [[dateType, 'ASC']],
+        limit: BATCH_SIZE,
+        offset: offset,
+      });
+
+      if (batchData.length > 0) {
+        const firstDate = batchData[0][dateType];
+        const lastDate = batchData[batchData.length - 1][dateType];
+        ranges.push([firstDate, lastDate]);
+      }
+
+      offset += BATCH_SIZE;
+    }
+    console.log('ranges👍:', ranges);
+    res.status(200).json({ ranges });
 
   } catch (error) {
-    res.status(500).send('Error retrieving row count');
+    console.error(error);
+    res.status(500).send('Error retrieving date ranges');
   }
 });
+
 
 
 module.exports = router;
