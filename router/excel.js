@@ -234,6 +234,114 @@ router.post('/reference', async (req, res) => {
   }
 });
 
+router.post('/customer', async (req, res) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reference');
+
+    // 첫 번째 배치를 가져와서 컬럼을 설정합니다.
+    const firstBatch = await Customer.findAll({ limit: 1 });
+    if (firstBatch.length === 0) {
+      return res.status(404).send('No data available');
+    }
+
+    const columns = Object.keys(firstBatch[0].dataValues).map(key => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1),
+      key,
+      width: 50,
+    }));
+
+    worksheet.columns = columns;
+
+    // 해당 키워드로 데이터 가져오기
+    const records = await Customer.findAll();
+
+    if (records.length === 0) {
+      return res.status(404).send('No data available for the provided keyword');
+    }
+
+    // 데이터를 엑셀 시트에 추가
+    records.forEach(record => {
+      const data = record.dataValues;
+
+      worksheet.addRow(data);
+    });
+
+    // 파일 이름에서 특수 문자를 제거하거나 인코딩
+    const safeFileName = path.basename(`customer.xlsx`).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${encodeURIComponent(safeFileName)}`
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (error) {
+    console.error('Error generating the excel file', error);
+    res.status(500).send('Error generating the excel file');
+  }
+});
+
+router.post('/employee', async (req, res) => {
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reference');
+
+    // 첫 번째 배치를 가져와서 컬럼을 설정합니다.
+    const firstBatch = await User.findAll({ limit: 1 });
+    if (firstBatch.length === 0) {
+      return res.status(404).send('No data available');
+    }
+
+    const columns = Object.keys(firstBatch[0].dataValues).map(key => ({
+      header: key.charAt(0).toUpperCase() + key.slice(1),
+      key,
+      width: 50,
+    }));
+
+    worksheet.columns = columns;
+
+    // 해당 키워드로 데이터 가져오기
+    const records = await User.findAll();
+
+    if (records.length === 0) {
+      return res.status(404).send('No data available for the provided keyword');
+    }
+
+    // 데이터를 엑셀 시트에 추가
+    records.forEach(record => {
+      const data = record.dataValues;
+
+      worksheet.addRow(data);
+    });
+
+    // 파일 이름에서 특수 문자를 제거하거나 인코딩
+    const safeFileName = path.basename(`customer.xlsx`).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename=${encodeURIComponent(safeFileName)}`
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+
+  } catch (error) {
+    console.error('Error generating the excel file', error);
+    res.status(500).send('Error generating the excel file');
+  }
+});
+
 
 
 module.exports = router;
