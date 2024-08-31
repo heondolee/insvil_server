@@ -19,8 +19,9 @@ router.post("/", async (req, res) => {
     return res.status(400).json({ success: false, message: "아이디나 비밀번호가 일치하지 않습니다." });
   } else {
     const myUUID = uuidv4();
-    user.employeeNumber = myUUID;
-    return res.status(200).json({ user: user, success: true, message: "로그인 성공" });
+
+    await User.update({ employeeNumber: myUUID }, { where: { id : user.id } }); // 재발급한 토큰저장하기
+    return res.status(200).json({ user: user, success: true, token: myUUID, message: "로그인 성공" });
   }
 });
 
@@ -29,18 +30,24 @@ router.get("/auto", async (req, res) => {
   try {
     const token = req.headers["authorization"];
     const tokenValue = token ? token.split(" ")[1] : null;
-
+    
+    if (!tokenValue) {
+      return res.status(400).json({ success: false, message: "토큰이 제공되지 않았습니다." });
+    }
+    
     const user = await User.findOne({ where: { employeeNumber: tokenValue } });
-
+    console.log('👍', user)
     if (!user) {
+      console.log('💪')
       return res.status(400).json({ success: false, message: "토큰이 유효하지 않습니다." });
     } else {
       return res.status(200).json({ user: user, success: true, message: "자동 로그인 성공" });
     }
 
-  } catch(err){
+  } catch (err) {
     res.status(500).json({ success: false, message: "서버 내부 오류" });
   }
 });
+
 
 module.exports = router;
