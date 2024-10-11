@@ -9,6 +9,7 @@ router.get("/", async (req, res) => {
   res.status(200).send({ cars: "자동차 데이터" });
 });
 
+
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
   const { startDate, endDate, dateType, contractor, responsibilityName, carNumber } = req.body;
@@ -31,22 +32,24 @@ router.post("/date-range", async (req, res) => {
   try {
     const queryConditions = {};
 
+    // contractor가 빈칸이 아니면 contractor만으로 조회
     if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
-    }
+    } else {
+      // contractor가 없을 때만 다른 조건 추가
+      if (responsibilityName && responsibilityName.trim() !== '') {
+        queryConditions.responsibilityName = responsibilityName;
+      }
 
-    if (responsibilityName && responsibilityName.trim() !== '') {
-      queryConditions.responsibilityName = responsibilityName;
-    }
+      if (carNumber && carNumber.trim() !== '') {
+        queryConditions.carNumber = carNumber;
+      }
 
-    if (carNumber && carNumber.trim() !== '') {
-      queryConditions.carNumber = carNumber;
-    }
-
-    if (dateType && startDate && endDate) {
-      queryConditions[dateType] = {
-        [db.Sequelize.Op.between]: [startDate, endDate],
-      };
+      if (dateType && startDate && endDate) {
+        queryConditions[dateType] = {
+          [db.Sequelize.Op.between]: [startDate, endDate],
+        };
+      }
     }
 
     const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
