@@ -32,17 +32,18 @@ router.post("/date-range", async (req, res) => {
   try {
     const queryConditions = {};
 
-    // contractor가 빈칸이 아니면 contractor만으로 조회
-    if (contractor && contractor.trim() !== '') {
+    // carNumber가 있으면 carNumber만으로 조회
+    if (carNumber && carNumber.trim() !== '') {
+      queryConditions.carNumber = carNumber;
+    } 
+    // carNumber가 없고 contractor가 있으면 contractor만으로 조회
+    else if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
-    } else {
-      // contractor가 없을 때만 다른 조건 추가
+    } 
+    // 둘 다 없으면 다른 조건 적용
+    else {
       if (responsibilityName && responsibilityName.trim() !== '') {
         queryConditions.responsibilityName = responsibilityName;
-      }
-
-      if (carNumber && carNumber.trim() !== '') {
-        queryConditions.carNumber = carNumber;
       }
 
       if (dateType && startDate && endDate) {
@@ -64,6 +65,7 @@ router.post("/date-range", async (req, res) => {
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
   }
 });
+
 
 // 특정 contractor의 car 데이터 조회
 router.post("/detail", async (req, res) => {
