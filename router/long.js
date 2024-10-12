@@ -37,17 +37,17 @@ router.post("/date-range", async (req, res) => {
     }
     
     // policyNumber가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
-    if (policyNumber && policyNumber.trim() !== '') {
+    else if (policyNumber && policyNumber.trim() !== '') {
       queryConditions.policyNumber = policyNumber;
     }
     
     // responsibleName이 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
-    if (responsibleName && responsibleName.trim() !== '') {
+    else if (responsibleName && responsibleName.trim() !== '') {
       queryConditions.responsibleName = responsibleName;
     }
     
     // dateType, startDate, endDate가 제공된 경우, 쿼리 조건에 추가합니다.
-    if (dateType && startDate && endDate) {
+    else if (dateType && startDate && endDate) {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate],
       };
