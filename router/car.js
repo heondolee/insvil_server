@@ -40,12 +40,11 @@ router.post("/date-range", async (req, res) => {
     else if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
     } 
+    else if (responsibilityName && responsibilityName.trim() !== '') {
+      queryConditions.responsibilityName = responsibilityName;
+    }
     // 둘 다 없으면 다른 조건 적용
     else {
-      if (responsibilityName && responsibilityName.trim() !== '') {
-        queryConditions.responsibilityName = responsibilityName;
-      }
-
       if (dateType && startDate && endDate) {
         queryConditions[dateType] = {
           [db.Sequelize.Op.between]: [startDate, endDate],
