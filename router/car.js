@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber } = req.body;
+  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -31,6 +31,10 @@ router.post("/date-range", async (req, res) => {
 
   try {
     const queryConditions = {};
+    
+    if (user.userCode === 4) {
+      queryConditions.responsibilityName = user.name;
+    }
 
     // carNumber가 있으면 carNumber만으로 조회
     if (carNumber && carNumber.trim() !== '') {
