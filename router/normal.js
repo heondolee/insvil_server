@@ -6,7 +6,7 @@ const { Normal } = db;
 
 // 계약일에 맞는 long 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractStatus, policyholder, manager, policyNumber } = req.body;
+  const { startDate, endDate, dateType, contractStatus, policyholder, manager, policyNumber, user } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -25,6 +25,10 @@ router.post("/date-range", async (req, res) => {
 
   try {
     const queryConditions = {};
+
+    if (user.userCode === 4) {
+      queryConditions.manager = user.name;
+    }
 
     // policyholder가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
     if (policyholder && policyholder.trim() !== '') {
