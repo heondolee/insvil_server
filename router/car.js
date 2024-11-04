@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user } = req.body;
+  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user, isCar } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -55,10 +55,22 @@ router.post("/date-range", async (req, res) => {
         [db.Sequelize.Op.between]: [startDate, endDate]
       };
     }
-    
+
     const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
 
-    const cars = await Car.findAll({
+    console.log(queryConditions);
+    console.log(order);
+
+    // isCar에 따라 모델 선택
+    const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
+
+    if (!Model) {
+      return res.status(400).send({
+        error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
+      });
+    }
+
+    const cars = await Model.findAll({
       where: queryConditions,
       order,
     });
@@ -72,10 +84,19 @@ router.post("/date-range", async (req, res) => {
 
 // 특정 contractor의 car 데이터 조회
 router.post("/detail", async (req, res) => {
-  const { id } = req.body;
+  const { id, isCar } = req.body;
+
+  // isCar에 따라 모델 선택
+  const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
+
+  if (!Model) {
+    return res.status(400).send({
+      error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
+    });
+  }
 
   try {
-    const car = await Car.findOne({
+    const car = await Model.findOne({
       where: {
         id: id,
       },
@@ -88,9 +109,19 @@ router.post("/detail", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
-  const carData = req.body;
+  const { carData, isCar } = req.body;
+
+  // isCar에 따라 모델 선택
+  const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
+
+  if (!Model) {
+    return res.status(400).send({
+      error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
+    });
+  }
+  
   try {
-    const car = await Car.create(carData);
+    const car = await Model.create(carData);
     res.status(200).json(car);
   } catch (error) {
     console.error(error);
@@ -99,9 +130,19 @@ router.post("/create", async (req, res) => {
 });
 
 router.post("/update", async (req, res) => {
-  const carData = req.body;
+  const {carData, isCar } = req.body;
+
+ // isCar에 따라 모델 선택
+  const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
+
+  if (!Model) {
+    return res.status(400).send({
+      error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
+    });
+  }
+
   try {
-    const car = await Car.update(carData, {
+    const car = await Model.update(carData, {
       where: {
         id: carData.id,
       },
@@ -114,9 +155,19 @@ router.post("/update", async (req, res) => {
 });
 
 router.delete("/delete", async (req, res) => {
-  const { id } = req.body;
+  const { id, isCar } = req.body;
+
+  // isCar에 따라 모델 선택
+  const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
+
+  if (!Model) {
+    return res.status(400).send({
+      error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
+    });
+  }
+
   try {
-    await Car.destroy({
+    await Model.destroy({
       where: {
         id: id,
       },
