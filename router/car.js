@@ -36,26 +36,25 @@ router.post("/date-range", async (req, res) => {
       queryConditions.responsibilityName = user.name;
     }
 
-    // carNumber가 있으면 carNumber만으로 조회
     if (carNumber && carNumber.trim() !== '') {
       queryConditions.carNumber = carNumber;
     } 
-    // carNumber가 없고 contractor가 있으면 contractor만으로 조회
-    else if (contractor && contractor.trim() !== '') {
+
+    if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
     } 
-    else if (responsibilityName && responsibilityName.trim() !== '') {
+
+    if (responsibilityName && responsibilityName.trim() !== '') {
       queryConditions.responsibilityName = responsibilityName;
     }
-    // 둘 다 없으면 다른 조건 적용
-    else {
-      if (dateType && startDate && endDate) {
-        queryConditions[dateType] = {
-          [db.Sequelize.Op.between]: [startDate, endDate],
-        };
-      }
-    }
 
+    const isToday = startDate === endDate && startDate === new Date().toISOString().slice(0, 10);
+    if (!isToday) {
+      queryConditions[dateType] = {
+        [db.Sequelize.Op.between]: [startDate, endDate],
+      };
+    }
+    
     const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
 
     const cars = await Car.findAll({
