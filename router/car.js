@@ -48,8 +48,13 @@ router.post("/date-range", async (req, res) => {
     if (responsibilityName && responsibilityName.trim() !== '') {
       queryConditions.responsibilityName = responsibilityName;
     }
+    
+    const today = new Date();
+    today.setHours(today.getHours() + 9);  // UTC 기준에서 9시간 더하기
+    const dateString = today.toISOString().slice(0, 10);
 
-    const isToday = startDate === endDate && startDate === new Date().toISOString().slice(0, 10);
+    const isToday = startDate === endDate && startDate === dateString;
+    console.log('isToday', isToday);
     if (!isToday) {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate]
@@ -57,9 +62,6 @@ router.post("/date-range", async (req, res) => {
     }
 
     const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
-
-    console.log(queryConditions);
-    console.log(order);
 
     // isCar에 따라 모델 선택
     const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
