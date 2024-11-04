@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require("../models");
 
 const { Car } = db;
+const { CarDesign } = db;
 
 // 모든 car 데이터 조회
 router.get("/", async (req, res) => {
@@ -51,7 +52,7 @@ router.post("/date-range", async (req, res) => {
     const isToday = startDate === endDate && startDate === new Date().toISOString().slice(0, 10);
     if (!isToday) {
       queryConditions[dateType] = {
-        [db.Sequelize.Op.between]: [startDate, endDate],
+        [db.Sequelize.Op.between]: [startDate, endDate]
       };
     }
     
