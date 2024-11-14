@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user, isCar, page, itemsPerPage} = req.body;
+  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user, isCar, page, itemsPerPage } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -32,37 +32,37 @@ router.post("/date-range", async (req, res) => {
 
   try {
     const queryConditions = {};
-    
+
     if (user.userCode === 4) {
       queryConditions.responsibilityName = user.name;
     }
 
     if (carNumber && carNumber.trim() !== '') {
       queryConditions.carNumber = carNumber;
-    } 
+    }
 
     if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
-    } 
+    }
 
     if (responsibilityName && responsibilityName.trim() !== '') {
       queryConditions.responsibilityName = responsibilityName;
     }
-    
+
     const today = new Date();
     today.setHours(today.getHours() + 9);  // UTC 기준에서 9시간 더하기
     const dateString = today.toISOString().slice(0, 10);
 
     const isToday = startDate === endDate && startDate === dateString;
-    console.log('isToday', isToday);
     if (!isToday) {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate]
       };
     }
+
     const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
-    const offset = (page - 1) * itemsPerPage;  // 페이지에 따라 데이터를 건너뛰는 개수
-    const limit = itemsPerPage;  // 페이지 당 가져올 데이터 개수
+    const offset = (page - 1) * itemsPerPage;
+    const limit = itemsPerPage;
 
     const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
 
@@ -72,15 +72,35 @@ router.post("/date-range", async (req, res) => {
       });
     }
 
+    let cars2 = [];
+    if (page === 1) {
+      cars2 = await Model.findAll({
+        where: queryConditions,
+        order,
+      });
+    }
+
     const { rows: cars, count: totalItems } = await Model.findAndCountAll({
       where: queryConditions,
       order,
       offset,
       limit,
     });
+
+    // 전체 초회보험료 합계 계산
+    const totalFirstPremium = cars2.reduce((sum, car) => {
+      let value = car.firstPremium;
+      if (!value.includes(',')) {
+        return sum + Number(value);
+      } else {
+        return sum + Number(value.replace(/,/g, ''));
+      }
+    }, 0);
+
     res.status(200).send({
-      cars: cars,
-      totalItems,  // 전체 아이템 수를 클라이언트에 전달
+      cars,
+      totalItems,
+      totalFirstPremium,  // 초회보험료 합계
       currentPage: page,
       itemsPerPage,
     });
@@ -89,32 +109,6 @@ router.post("/date-range", async (req, res) => {
   }
 });
 
-
-// 특정 contractor의 car 데이터 조회
-router.post("/detail", async (req, res) => {
-  const { id, isCar } = req.body;
-
-  // isCar에 따라 모델 선택
-  const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
-
-  if (!Model) {
-    return res.status(400).send({
-      error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
-    });
-  }
-
-  try {
-    const car = await Model.findOne({
-      where: {
-        id: id,
-      },
-    });
-    res.status(200).send(car);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "서버 오류가 발생했습니다." });
-  }
-});
 
 router.post("/create", async (req, res) => {
   const { carData, isCar } = req.body;
