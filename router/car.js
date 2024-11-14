@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user, isCar } = req.body;
+  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user, isCar, page, itemsPerPage} = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -60,10 +60,10 @@ router.post("/date-range", async (req, res) => {
         [db.Sequelize.Op.between]: [startDate, endDate]
       };
     }
-
     const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
+    const offset = (page - 1) * itemsPerPage;  // 페이지에 따라 데이터를 건너뛰는 개수
+    const limit = itemsPerPage;  // 페이지 당 가져올 데이터 개수
 
-    // isCar에 따라 모델 선택
     const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
 
     if (!Model) {
@@ -72,12 +72,19 @@ router.post("/date-range", async (req, res) => {
       });
     }
 
-    const cars = await Model.findAll({
+    const { rows: cars, count: totalItems } = await Model.findAndCountAll({
       where: queryConditions,
       order,
+      offset,
+      limit,
     });
-
-    res.status(200).send({ cars: cars });
+    console.log('💕cars', cars);
+    res.status(200).send({
+      cars: cars,
+      totalItems,  // 전체 아이템 수를 클라이언트에 전달
+      currentPage: page,
+      itemsPerPage,
+    });
   } catch (error) {
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
   }
