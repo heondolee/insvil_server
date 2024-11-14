@@ -78,7 +78,6 @@ router.post("/date-range", async (req, res) => {
       offset,
       limit,
     });
-    console.log('💕cars', cars);
     res.status(200).send({
       cars: cars,
       totalItems,  // 전체 아이템 수를 클라이언트에 전달
