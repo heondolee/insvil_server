@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 long 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractStatus, contractor, responsibleName, policyNumber, user } = req.body;
+  const { startDate, endDate, dateType, contractStatus, contractor, responsibleName, policyNumber, user, page, itemsPerPage } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -74,13 +74,22 @@ router.post("/date-range", async (req, res) => {
     }    
 
     const order = dateType === 'paymentEndDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
+    const offset = (page - 1) * itemsPerPage;  // 페이지에 따라 데이터를 건너뛰는 개수
+    const limit = itemsPerPage;  // 페이지 당 가져올 데이터 개수
 
-    const longs = await Long.findAll({
+    const { rows: longs, count: totalItems } = await Long.findAndCountAll({
       where: queryConditions,
       order,
+      offset,
+      limit,
     });
 
-    res.status(200).send({ longs: longs });
+    res.status(200).send({
+      longs: longs,
+      totalItems,
+      currentPage: page,
+      itemsPerPage,
+    });
   } catch (error) {
     res.status(500).send({ error: "데이터 조회 중 오류가 발생했습니다." });
   }
