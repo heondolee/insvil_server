@@ -72,14 +72,6 @@ router.post("/date-range", async (req, res) => {
       });
     }
 
-    let cars2 = [];
-    if (page === 1) {
-      cars2 = await Model.findAll({
-        where: queryConditions,
-        order,
-      });
-    }
-
     const { rows: cars, count: totalItems } = await Model.findAndCountAll({
       where: queryConditions,
       order,
@@ -87,15 +79,26 @@ router.post("/date-range", async (req, res) => {
       limit,
     });
 
-    // 전체 초회보험료 합계 계산
-    const totalFirstPremium = cars2.reduce((sum, car) => {
-      let value = car.firstPremium;
-      if (!value.includes(',')) {
-        return sum + Number(value);
-      } else {
-        return sum + Number(value.replace(/,/g, ''));
+    let totalFirstPremium = 0;
+
+    if (!isToday) {
+      let cars2 = [];
+      if (page === 1) {
+        cars2 = await Model.findAll({
+          where: queryConditions,
+          order,
+        });
+        // 전체 초회보험료 합계 계산
+        totalFirstPremium = cars2.reduce((sum, car) => {
+          let value = car.firstPremium;
+          if (!value.includes(',')) {
+            return sum + Number(value);
+          } else {
+            return sum + Number(value.replace(/,/g, ''));
+          }
+        }, 0);
       }
-    }, 0);
+    }
 
     res.status(200).send({
       cars,
@@ -109,6 +112,31 @@ router.post("/date-range", async (req, res) => {
   }
 });
 
+// 특정 contractor의 car 데이터 조회
+router.post("/detail", async (req, res) => {
+  const { id, isCar } = req.body;
+
+  // isCar에 따라 모델 선택
+  const Model = isCar === "longTerm" ? Car : isCar === "design" ? CarDesign : null;
+
+  if (!Model) {
+    return res.status(400).send({
+      error: "유효하지 않은 isCar 값입니다. longTerm 또는 design이어야 합니다.",
+    });
+  }
+
+  try {
+    const car = await Model.findOne({
+      where: {
+        id: id,
+      },
+    });
+    res.status(200).send(car);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "서버 오류가 발생했습니다." });
+  }
+});
 
 router.post("/create", async (req, res) => {
   const { carData, isCar } = req.body;
