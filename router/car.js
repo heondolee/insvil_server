@@ -54,6 +54,7 @@ router.post("/date-range", async (req, res) => {
     const dateString = today.toISOString().slice(0, 10);
 
     const isToday = startDate === endDate && startDate === dateString;
+    
     if (!isToday) {
       queryConditions[dateType] = {
         [db.Sequelize.Op.between]: [startDate, endDate]

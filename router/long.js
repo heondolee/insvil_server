@@ -41,20 +41,13 @@ router.post("/date-range", async (req, res) => {
     }
     
     // policyNumber가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
-    else if (policyNumber && policyNumber.trim() !== '') {
+    if (policyNumber && policyNumber.trim() !== '') {
       queryConditions.policyNumber = policyNumber;
     }
     
     // responsibleName이 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
-    else if (responsibleName && responsibleName.trim() !== '') {
+    if (responsibleName && responsibleName.trim() !== '') {
       queryConditions.responsibleName = responsibleName;
-    }
-    
-    // dateType, startDate, endDate가 제공된 경우, 쿼리 조건에 추가합니다.
-    else if (dateType && startDate && endDate) {
-      queryConditions[dateType] = {
-        [db.Sequelize.Op.between]: [startDate, endDate],
-      };
     }
     
     // contractStatus가 제공되고 'statusAll'이 아닌 경우, 쿼리 조건에 추가합니다.
@@ -73,6 +66,18 @@ router.post("/date-range", async (req, res) => {
       queryConditions.contractStatus = statusMapping[contractStatus];
     }    
 
+    const today = new Date();
+    today.setHours(today.getHours() + 9);  // UTC 기준에서 9시간 더하기
+    const dateString = today.toISOString().slice(0, 10);
+
+    const isToday = startDate === endDate && startDate === dateString;
+
+    if (!isToday) {
+      queryConditions[dateType] = {
+        [db.Sequelize.Op.between]: [startDate, endDate]
+      };
+    }
+
     const order = dateType === 'paymentEndDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
     const offset = (page - 1) * itemsPerPage;  // 페이지에 따라 데이터를 건너뛰는 개수
     const limit = itemsPerPage;  // 페이지 당 가져올 데이터 개수
@@ -84,9 +89,42 @@ router.post("/date-range", async (req, res) => {
       limit,
     });
 
+    let paymentInsurance = 0;
+    let correctedInsurance = 0;
+
+    if (!isToday) {
+      let longs = [];
+      if (page === 1) {
+        longs = await Long.findAll({
+          where: queryConditions,
+          order,
+        });
+        // 전체 납입보험료 합계 계산
+        paymentInsurance = longs.reduce((sum, long) => {
+          let value = long.paymentInsurance;
+          if (!value.includes(',')) {
+            return sum + Number(value * 1000);
+          } else {
+            return sum + Number(value.replace(/,/g, ''));
+          }
+        }, 0);
+        // 전체 수정보험료 합계 계산
+        correctedInsurance = longs.reduce((sum, long) => {
+          let value = long.correctedInsurance;
+          if (!value.includes(',')) {
+            return sum + Number(value * 1000);
+          } else {
+            return sum + Number(value.replace(/,/g, ''));
+          }
+        }, 0);
+      }
+    }
+
     res.status(200).send({
       longs: longs,
       totalItems,
+      paymentInsurance,  // 납입보험료 합계
+      correctedInsurance,  // 수정보험료 합계
       currentPage: page,
       itemsPerPage,
     });
