@@ -93,7 +93,7 @@ router.post("/date-range", async (req, res) => {
         totalFirstPremium = cars2.reduce((sum, car) => {
           let value = car.firstPremium;
           if (!value.includes(',')) {
-            return sum + Number(value);
+            return sum + Number(value * 1000);
           } else {
             return sum + Number(value.replace(/,/g, ''));
           }

@@ -103,7 +103,7 @@ router.post("/date-range", async (req, res) => {
         paymentInsurance = longs.reduce((sum, long) => {
           let value = long.paymentInsurance;
           if (!value.includes(',')) {
-            return sum + Number(value * 1000);
+            return sum + Number(value);
           } else {
             return sum + Number(value.replace(/,/g, ''));
           }
@@ -112,7 +112,7 @@ router.post("/date-range", async (req, res) => {
         correctedInsurance = longs.reduce((sum, long) => {
           let value = long.correctedInsurance;
           if (!value.includes(',')) {
-            return sum + Number(value * 1000);
+            return sum + Number(value);
           } else {
             return sum + Number(value.replace(/,/g, ''));
           }
