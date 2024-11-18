@@ -91,13 +91,18 @@ router.post("/date-range", async (req, res) => {
         });
         // 전체 초회보험료 합계 계산
         totalFirstPremium = cars2.reduce((sum, car) => {
-          let value = car.firstPremium;
-          if (!value.includes(',')) {
-            return sum + Number(value * 1000);
-          } else {
+          let value = String(car.firstPremium);
+          console.log('⏰value:', value);
+          if (Number(value) <= 2000 || value.includes('.')) {
+            return sum + (Number(value) * 1000);
+          } else if (value.includes(',')) {
             return sum + Number(value.replace(/,/g, ''));
+          } else {
+            return sum + Number(value);
           }
         }, 0);
+
+        console.log('⏰totalFirstPremium:', totalFirstPremium);
       }
     }
 
