@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractor, responsibilityName, carNumber, user, isCar, page, itemsPerPage } = req.body;
+  const { startDate, endDate, dateType, contractor,insured, responsibilityName, carNumber, user, isCar, page, itemsPerPage } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -43,6 +43,10 @@ router.post("/date-range", async (req, res) => {
 
     if (contractor && contractor.trim() !== '') {
       queryConditions.contractor = contractor;
+    }
+
+    if (insured && insured.trim() !== '') {
+      queryConditions.insured = insured;
     }
 
     if (responsibilityName && responsibilityName.trim() !== '') {
@@ -92,7 +96,6 @@ router.post("/date-range", async (req, res) => {
         // 전체 초회보험료 합계 계산
         totalFirstPremium = cars2.reduce((sum, car) => {
           let value = String(car.firstPremium);
-          console.log('⏰value:', value);
           if (Number(value) <= 2000 || value.includes('.')) {
             return sum + (Number(value) * 1000);
           } else if (value.includes(',')) {
@@ -101,8 +104,6 @@ router.post("/date-range", async (req, res) => {
             return sum + Number(value);
           }
         }, 0);
-
-        console.log('⏰totalFirstPremium:', totalFirstPremium);
       }
     }
 
