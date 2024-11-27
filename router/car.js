@@ -65,7 +65,7 @@ router.post("/date-range", async (req, res) => {
       };
     }
 
-    const order = dateType === 'endDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
+    const order = [[dateType, 'DESC']];
     const offset = (page - 1) * itemsPerPage;
     const limit = itemsPerPage;
 
