@@ -36,19 +36,24 @@ router.post("/date-range", async (req, res) => {
     }
     
     // policyNumber가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
-    else if (policyNumber && policyNumber.trim() !== '') {
+    if (policyNumber && policyNumber.trim() !== '') {
       queryConditions.policyNumber = policyNumber;
     }
     
     // manager이 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
-    else if (manager && manager.trim() !== '') {
+    if (manager && manager.trim() !== '') {
       queryConditions.manager = manager;
     }
+
+    const today = new Date();
+    today.setHours(today.getHours() + 9);  // UTC 기준에서 9시간 더하기
+    const dateString = today.toISOString().slice(0, 10);
+
+    const isToday = startDate === endDate && startDate === dateString;
     
-    // dateType, startDate, endDate가 제공된 경우, 쿼리 조건에 추가합니다.
-    else if (dateType && startDate && endDate) {
+    if (!isToday) {
       queryConditions[dateType] = {
-        [db.Sequelize.Op.between]: [startDate, endDate],
+        [db.Sequelize.Op.between]: [startDate, endDate]
       };
     }
     
@@ -65,7 +70,7 @@ router.post("/date-range", async (req, res) => {
       queryConditions.contractStatus = statusMapping[contractStatus];
     }    
 
-    const order = dateType === 'paymentEndDate' ? [[dateType, 'ASC']] : [[dateType, 'DESC']];
+    const order = [[dateType, 'DESC']];
 
     const normals = await Normal.findAll({
       where: queryConditions,
