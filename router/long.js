@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 long 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractStatus, contractor, insuredPerson, responsibleName, policyNumber, user, page, itemsPerPage } = req.body;
+  const { startDate, endDate, dateType, contractStatus, contractCompany, contractor, insuredPerson, responsibleName, policyNumber, user, page, itemsPerPage } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -70,6 +70,23 @@ router.post("/date-range", async (req, res) => {
       }
       queryConditions.contractStatus = statusMapping[contractStatus];
     }    
+
+    // contractCompany가 제공되고 'allCompany' 가 아닌 경우, 쿼리 조건에 추가합니다.
+    if (contractCompany && contractCompany !== 'allCompany') {
+      const companyMapping = {
+        kbsb: 'KB손보',
+        samsung: '삼성화재',
+        meritz: '메리츠화재',
+        dbsb: 'DB손보',
+        hyundai: '현대해상',
+        mgsb: 'MG손보',
+      };
+      if (!companyMapping[contractCompany]) {
+        throw new Error('잘못된 contractCompany 값입니다.');
+      }
+      queryConditions.contractCompany = companyMapping[contractCompany];
+    }
+
 
     const today = new Date();
     today.setHours(today.getHours() + 9);  // UTC 기준에서 9시간 더하기
