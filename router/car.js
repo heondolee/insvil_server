@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
 
 // 계약일에 맞는 car 데이터 조회
 router.post("/date-range", async (req, res) => {
-  const { startDate, endDate, dateType, contractor,insured, responsibilityName, carNumber, user, isCar, page, itemsPerPage } = req.body;
+  const { startDate, endDate, dateType, contractCompany, contractor,insured, responsibilityName, carNumber, user, isCar, page, itemsPerPage } = req.body;
 
   const isValidDate = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
 
@@ -51,6 +51,23 @@ router.post("/date-range", async (req, res) => {
 
     if (responsibilityName && responsibilityName.trim() !== '') {
       queryConditions.responsibilityName = responsibilityName;
+    }
+
+    // contractCompany가 제공되고 'allCompany' 가 아닌 경우, 쿼리 조건에 추가합니다.
+    if (contractCompany && contractCompany !== 'allCompany') {
+      const companyMapping = {
+        kbsb: 'KB손보',
+        samsung: '삼성화재',
+        meritz: '메리츠화재',
+        dbsb: 'DB손보',
+        hyundai: '현대해상',
+        mgsb: 'MG손보',
+        hghj: '흥국화재',
+      };
+      if (!companyMapping[contractCompany]) {
+        throw new Error('잘못된 contractCompany 값입니다.');
+      }
+      queryConditions.contractCompany = companyMapping[contractCompany];
     }
 
     const today = new Date();
