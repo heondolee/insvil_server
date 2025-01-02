@@ -35,27 +35,37 @@ router.post("/date-range", async (req, res) => {
       queryConditions.responsibleName = user.name;
     }
 
-    // contractor가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
+    const { Op } = db.Sequelize;
+
+    // contractor가 제공된 경우 LIKE 연산자로 조건 추가
     if (contractor && contractor.trim() !== '') {
-      queryConditions.contractor = contractor;
+      queryConditions.contractor = {
+        [Op.like]: `%${contractor}%`,
+      };
     }
 
-    // insuredPerson이 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
+    // insuredPerson이 제공된 경우 LIKE 연산자로 조건 추가
     if (insuredPerson && insuredPerson.trim() !== '') {
-      queryConditions.insuredPerson = insuredPerson;
+      queryConditions.insuredPerson = {
+        [Op.like]: `%${insuredPerson}%`,
+      };
     }
     
-    // policyNumber가 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
+    // policyNumber가 제공된 경우 LIKE 연산자로 조건 추가
     if (policyNumber && policyNumber.trim() !== '') {
-      queryConditions.policyNumber = policyNumber;
+      queryConditions.policyNumber = {
+        [Op.like]: `%${policyNumber}%`,
+      };
     }
     
-    // responsibleName이 제공되고 비어있지 않은 경우, 쿼리 조건에 추가합니다.
+    // responsibleName이 제공된 경우 LIKE 연산자로 조건 추가
     if (responsibleName && responsibleName.trim() !== '') {
-      queryConditions.responsibleName = responsibleName;
+      queryConditions.responsibleName = {
+        [Op.like]: `%${responsibleName}%`,
+      };
     }
     
-    // contractStatus가 제공되고 'statusAll'이 아닌 경우, 쿼리 조건에 추가합니다.
+    // contractStatus 처리
     if (contractStatus && contractStatus !== 'statusAll') {
       const statusMapping = {
         statusMaintain: '유지',
@@ -69,9 +79,9 @@ router.post("/date-range", async (req, res) => {
         throw new Error('잘못된 contractStatus 값입니다.');
       }
       queryConditions.contractStatus = statusMapping[contractStatus];
-    }    
+    }
 
-    // contractCompany가 제공되고 'allCompany' 가 아닌 경우, 쿼리 조건에 추가합니다.
+    // contractCompany 처리
     if (contractCompany && contractCompany !== 'allCompany') {
       const companyMapping = {
         kbsb: 'KB손보',
@@ -87,7 +97,6 @@ router.post("/date-range", async (req, res) => {
       queryConditions.contractCompany = companyMapping[contractCompany];
     }
 
-
     const today = new Date();
     today.setHours(today.getHours() + 9);  // UTC 기준에서 9시간 더하기
     const dateString = today.toISOString().slice(0, 10);
@@ -96,7 +105,7 @@ router.post("/date-range", async (req, res) => {
 
     if (!isToday) {
       queryConditions[dateType] = {
-        [db.Sequelize.Op.between]: [startDate, endDate]
+        [Op.between]: [startDate, endDate],
       };
     }
 
@@ -121,7 +130,6 @@ router.post("/date-range", async (req, res) => {
           where: queryConditions,
           order,
         });
-        // 전체 납입보험료 합계 계산
         paymentInsurance = longs.reduce((sum, long) => {
           let value = long.paymentInsurance;
           if (!value.includes(',')) {
@@ -130,7 +138,6 @@ router.post("/date-range", async (req, res) => {
             return sum + Number(value.replace(/,/g, ''));
           }
         }, 0);
-        // 전체 수정보험료 합계 계산
         correctedInsurance = longs.reduce((sum, long) => {
           let value = long.correctedInsurance;
           if (!value.includes(',')) {
@@ -145,8 +152,8 @@ router.post("/date-range", async (req, res) => {
     res.status(200).send({
       longs: longs,
       totalItems,
-      paymentInsurance,  // 납입보험료 합계
-      correctedInsurance,  // 수정보험료 합계
+      paymentInsurance,
+      correctedInsurance,
       currentPage: page,
       itemsPerPage,
     });
