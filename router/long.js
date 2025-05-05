@@ -74,6 +74,7 @@ router.post("/date-range", async (req, res) => {
         statusWithdraw: '철회',
         statusCancel: '취소',
         statusExpire: '만기',
+        statusFinished: '완납',
       };
       if (!statusMapping[contractStatus]) {
         throw new Error('잘못된 contractStatus 값입니다.');
