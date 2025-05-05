@@ -12,6 +12,8 @@ router.post('/', async (req, res) => {
   try {
     const { modelName, startDate, endDate, dateType, responsibleName } = req.body;
 
+    console.log("💕 modelName", modelName, "startDate", startDate, "endDate", endDate, "dateType", dateType, "responsibleName", responsibleName);
+
     let Model;
     switch (modelName.toLowerCase()) {
       case 'long':
@@ -55,14 +57,20 @@ router.post('/', async (req, res) => {
 
     const whereCondition = {
       [dateType]: {
-        [db.Sequelize.Op.between]: [startDate, endDate],
+        [Op.between]: [startDate, endDate],
       },
     };
     
-    // responsibleName이 비어있지 않으면 조건에 추가
+    // responsibleName이 존재할 경우, 모델에 따라 다른 필드로 필터링
     if (responsibleName && responsibleName.trim() !== '') {
-      whereCondition.responsibleName = responsibleName;
-    }
+      if (modelName === 'car') {
+        whereCondition.responsibilityName = responsibleName;
+      } else if (modelName === 'normal') {
+        whereCondition.manager = responsibleName;
+      } else {
+        whereCondition.responsibleName = responsibleName;
+      }
+    }    
     
     const records = await Model.findAll({
       where: whereCondition,
@@ -131,13 +139,18 @@ router.get('/count', async (req, res) => {
 
     const whereCondition = {
       [dateType]: {
-        [db.Sequelize.Op.between]: [startDate, endDate],
+        [Op.between]: [startDate, endDate],
       },
     };
-
-    // responsibleName이 비어있지 않으면 조건에 추가
+    
     if (responsibleName && responsibleName.trim() !== '') {
-      whereCondition.responsibleName = responsibleName;
+      if (modelName === 'car') {
+        whereCondition.responsibilityName = responsibleName;
+      } else if (modelName === 'normal') {
+        whereCondition.manager = responsibleName;
+      } else {
+        whereCondition.responsibleName = responsibleName;
+      }
     }
 
     const count = await Model.count({
