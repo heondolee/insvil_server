@@ -10,7 +10,7 @@ const { Long, Car, User, Customer, Reference, Normal } = db;
 
 router.post('/', async (req, res) => {
   try {
-    const { modelName, startDate, endDate, dateType } = req.body;
+    const { modelName, startDate, endDate, dateType, responsibleName } = req.body;
 
     let Model;
     switch (modelName.toLowerCase()) {
@@ -53,15 +53,22 @@ router.post('/', async (req, res) => {
 
     worksheet.columns = columns;
 
-    // 해당 범위의 데이터 가져오기
-    const records = await Model.findAll({
-      where: {
-        [dateType]: {
-          [db.Sequelize.Op.between]: [startDate, endDate],
-        },
+    const whereCondition = {
+      [dateType]: {
+        [db.Sequelize.Op.between]: [startDate, endDate],
       },
+    };
+    
+    // responsibleName이 비어있지 않으면 조건에 추가
+    if (responsibleName && responsibleName.trim() !== '') {
+      whereCondition.responsibleName = responsibleName;
+    }
+    
+    const records = await Model.findAll({
+      where: whereCondition,
       order: [[dateType, 'ASC']], // 날짜 순서대로 정렬
     });
+    
 
     if (records.length === 0) {
       return res.status(404).send('No data available in this range');
