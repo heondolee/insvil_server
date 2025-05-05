@@ -68,7 +68,7 @@ router.post('/', async (req, res) => {
       } else if (modelName === 'normal') {
         whereCondition.manager = responsibleName;
       } else {
-        whereCondition.responsibleName = responsibleName;
+        whereCondition.responsible = responsibleName;
       }
     }    
     
@@ -149,7 +149,7 @@ router.get('/count', async (req, res) => {
       } else if (modelName === 'normal') {
         whereCondition.manager = responsibleName;
       } else {
-        whereCondition.responsibleName = responsibleName;
+        whereCondition.responsible = responsibleName;
       }
     }
 
@@ -161,11 +161,7 @@ router.get('/count', async (req, res) => {
     while (offset < count) {
       // BATCH_SIZE만큼의 데이터를 조회하여 처음과 끝의 날짜를 가져옴
       const batchData = await Model.findAll({
-        where: {
-          [dateType]: {
-            [db.Sequelize.Op.between]: [startDate, endDate],
-          }
-        },
+        where: whereCondition,
         order: [[dateType, 'ASC']],
         limit: BATCH_SIZE,
         offset: offset,
