@@ -101,7 +101,7 @@ router.post('/', async (req, res) => {
 // 백엔드에 행 수를 가져오는 API 추가
 router.get('/count', async (req, res) => {
   try {
-    const { modelName, startDate, endDate, dateType } = req.query;
+    const { modelName, startDate, endDate, dateType, responsibleName } = req.query;
     const BATCH_SIZE = 1000;
     const ranges = [];
 
@@ -129,12 +129,19 @@ router.get('/count', async (req, res) => {
         return res.status(400).send('Invalid model name');
     }
 
-    const count = await Model.count({
-      where: {
-        [dateType]: {
-          [db.Sequelize.Op.between]: [startDate, endDate],
-        },
+    const whereCondition = {
+      [dateType]: {
+        [db.Sequelize.Op.between]: [startDate, endDate],
       },
+    };
+
+    // responsibleName이 비어있지 않으면 조건에 추가
+    if (responsibleName && responsibleName.trim() !== '') {
+      whereCondition.responsibleName = responsibleName;
+    }
+
+    const count = await Model.count({
+      where: whereCondition,
     });
 
     let offset = 0;
